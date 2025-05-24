@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block title %}تفاصيل الفاتورة{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto mt-10 bg-white p-6 rounded-2xl shadow">
+    <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">🧾 تفاصيل الفاتورة رقم #{{ invoice.id }}</h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 text-gray-700">
+        <p><strong>👤 العميل:</strong> {{ invoice.customer.name }}</p>
+        <p><strong>💳 طريقة الدفع:</strong> {{ invoice.payment_method }}</p>
+        <p><strong>📅 التاريخ:</strong> {{ invoice.created_at|date:"Y-m-d H:i" }}</p>
+        <p><strong>💰 الإجمالي:</strong> {{ invoice.total }}</p>
+        <p><strong>✅ المدفوع:</strong> {{ invoice.amount_paid }}</p>
+        <p><strong>⏳ المتبقي:</strong> {{ invoice.remaining_amount }}</p>
+        {% if invoice.discount %}
+        <p><strong>٪ الخصم:</strong> {{ invoice.discount }}</p>
+        {% endif %}
+    </div>
+
+    <h3 class="text-lg font-bold text-gray-800 mb-3">📦 المنتجات:</h3>
+    <div class="overflow-x-auto mb-6">
+        <table class="w-full table-auto border-separate border-spacing-y-2 text-center">
+            <thead class="bg-gray-100 text-gray-700">
+                <tr>
+                    <th class="px-4 py-3">المنتج</th>
+                    <th class="px-4 py-3">الكمية</th>
+                    <th class="px-4 py-3">السعر</th>
+                    <th class="px-4 py-3">الإجمالي</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr class="bg-gray-50 hover:bg-gray-100 transition">
+                    <td class="px-4 py-2 font-medium text-gray-800">{{ item.product.name }}</td>
+                    <td class="px-4 py-2 text-gray-700">{{ item.quantity }}</td>
+                    <td class="px-4 py-2 text-gray-700">{{ item.price }}</td>
+                    <td class="px-4 py-2 text-green-700 font-semibold">{{ item.line_total }}</td>
+
+                    
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- الأزرار -->
+    <div class="flex flex-wrap justify-center md:justify-start gap-4 mt-8">
+        <a href="{% url 'print_invoice' invoice.id %}" target="_blank"
+            class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg shadow text-sm transition">
+            🖨️ طباعة الفاتورة
+        </a>
+        <a href="{% url 'update_invoice_payment' invoice.id %}"
+            class="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-2 rounded-lg shadow text-sm transition">
+            💳 تعديل الدفع
+        </a>
+        <a href="{% url 'invoice_pdf' invoice.id %}"
+            class="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg shadow text-sm transition">
+            📥 تحميل PDF
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+
+
+
+

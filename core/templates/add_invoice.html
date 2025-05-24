@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+{% block title %}إضافة فاتورة{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto mt-10 bg-white p-6 rounded-2xl shadow-md">
+    <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">➕ إضافة فاتورة جديدة</h2>
+
+    <form method="POST" class="space-y-6">
+        {% csrf_token %}
+
+        <!-- اختيار العميل -->
+        <div>
+            <label for="customerSelect" class="block font-semibold mb-1">👤 اختر العميل</label>
+            <select name="customer" id="customerSelect" class="w-full border p-2 rounded"
+                onchange="toggleNewCustomer(this)">
+                <option value="">-- اختر --</option>
+                {% for c in customers %}
+                <option value="{{ c.id }}">{{ c.name }}</option>
+                {% endfor %}
+                <option value="new">➕ عميل جديد</option>
+            </select>
+        </div>
+
+        <!-- نموذج العميل الجديد -->
+        <div id="newCustomerForm" class="space-y-3 hidden bg-gray-50 border p-4 rounded-lg">
+            <h3 class="font-bold text-gray-700">معلومات العميل الجديد</h3>
+            {{ customer_form.as_p }}
+        </div>
+
+        <!-- طريقة الدفع / الخصم / المدفوع -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+                <label class="block font-semibold mb-1">💳 طريقة الدفع</label>
+                <select name="payment_method" class="w-full border p-2 rounded">
+                    <option value="نقدًا">نقدًا</option>
+                    <option value="فيزا">فيزا</option>
+                    <option value="آجل">آجل</option>
+                </select>
+            </div>
+            <div>
+                <label class="block font-semibold mb-1"> الخصم</label>
+                <input type="number" step="0.01" name="discount" class="w-full border p-2 rounded"
+                    >
+            </div>
+            <div>
+                <label class="block font-semibold mb-1">💰 المدفوع</label>
+                <input type="number" step="0.01" name="amount_paid" class="w-full border p-2 rounded" value="0.00">
+            </div>
+        </div>
+
+        <!-- المنتجات -->
+        <div>
+            <h3 class="text-lg font-bold mt-6 mb-3">📦 المنتجات</h3>
+            <div id="products-area" class="space-y-4">
+
+                <!-- أول صف منتج -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end product-item">
+                    <select name="product_ids" class="border p-2 rounded w-full">
+                        {% for product in products %}
+                        <option value="{{ product.id }}">{{ product.name }} ({{ product.sell_price }} ج.م)</option>
+                        {% endfor %}
+                    </select>
+
+                    <input type="number" name="quantities" class="border p-2 rounded w-full" placeholder="الكمية">
+
+                    <button type="button" onclick="removeProduct(this)"
+                        class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded text-sm">
+                        🗑️ حذف
+                    </button>
+                </div>
+            </div>
+
+            <!-- زر إضافة صف -->
+            <div class="mt-4 text-center">
+                <button type="button" onclick="addProduct()"
+                    class="bg-gray-700 hover:bg-gray-800 text-white px-6 py-2 rounded-lg text-sm font-semibold">
+                    ➕ إضافة منتج آخر
+                </button>
+            </div>
+        </div>
+
+        <!-- زر الحفظ -->
+        <div class="text-center pt-6">
+            <button type="submit"
+                class="bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-8 rounded-lg text-lg transition">
+                💾 حفظ الفاتورة
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- ✅ سكربت الأصلي بتاعك -->
+<script>
+    function toggleNewCustomer(select) {
+        const newCustomerForm = document.getElementById('newCustomerForm');
+        if (select.value === 'new') {
+            newCustomerForm.classList.remove('hidden');
+            newCustomerForm.querySelectorAll('input, select, textarea').forEach(field => {
+                if (field.name !== 'notes') {
+                    field.setAttribute('required', true);
+                }
+            });
+        } else {
+            newCustomerForm.classList.add('hidden');
+            newCustomerForm.querySelectorAll('input, select, textarea').forEach(field => {
+                field.removeAttribute('required');
+            });
+        }
+    }
+
+    function addProduct() {
+        const productsArea = document.getElementById('products-area');
+        const firstProductItem = productsArea.querySelector('.product-item');
+        const newProductItem = firstProductItem.cloneNode(true);
+
+        newProductItem.querySelector('select[name="product_ids"]').value = '';
+        newProductItem.querySelector('input[name="quantities"]').value = '';
+        newProductItem.querySelector('button[onclick="removeProduct(this)"]').classList.remove('hidden');
+
+        productsArea.appendChild(newProductItem);
+    }
+
+    function removeProduct(button) {
+        const productItem = button.closest('.product-item');
+        if (document.querySelectorAll('.product-item').length > 1) {
+            productItem.remove();
+        } else {
+            alert('يجب أن تحتوي الفاتورة على منتج واحد على الأقل.');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const customerSelect = document.getElementById('customerSelect');
+        toggleNewCustomer(customerSelect);
+        if (document.querySelectorAll('.product-item').length === 1) {
+            document.querySelector('.product-item button[onclick="removeProduct(this)"]').classList.add('hidden');
+        }
+    });
+</script>
+{% endblock %}

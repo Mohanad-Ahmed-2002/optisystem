@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block title %}حذف المنتج{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto bg-white p-6 mt-10 rounded-2xl shadow text-center">
+    <h2 class="text-2xl font-bold text-red-600 mb-4">⚠️ تأكيد حذف المنتج</h2>
+    <p class="text-gray-700 mb-6">هل أنت متأكد أنك تريد حذف المنتج <strong>{{ product.name }}</strong>؟</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="flex justify-center gap-4">
+            <a href="{% url 'product_list' %}" class="bg-gray-200 text-gray-800 px-5 py-2 rounded hover:bg-gray-300">
+                لا، رجوع
+            </a>
+            <button type="submit" class="bg-red-600 text-white px-5 py-2 rounded hover:bg-red-700">
+                نعم، احذف
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

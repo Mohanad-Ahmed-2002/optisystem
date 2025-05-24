@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}OPTI-MANAGE{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-50 text-gray-800 font-sans flex flex-col min-h-screen">
+
+    <!-- ✅ HEADER -->
+    <header class="bg-gray-900 text-white shadow sticky top-0 z-50">
+        <div class="container mx-auto flex justify-between items-center p-4">
+            <a href="{% url 'dashboard' %}"
+                class="text-2xl font-bold tracking-wide text-red-600 hover:text-white transition">
+                OPTI-MANAGE
+            </a>
+            <nav class="hidden md:flex space-x-3 space-x-reverse gap-2 text-lg font-semibold">
+                <a href="{% url 'dashboard' %}" class="hover:text-yellow-400 transition">🏠 لوحة التحكم</a>
+                <a href="{% url 'invoice_list' %}" class="hover:text-yellow-400 transition">🧾 الفواتير</a>
+                <a href="{% url 'expenses_list' %}" class="hover:text-yellow-400 transition">💸 المصروفات</a>
+                <a href="{% url 'sales_report' %}" class="hover:text-yellow-400 transition">📊 التقارير</a>
+                <a href="{% url 'product_list' %}" class="hover:text-yellow-400 transition">📦 المنتجات</a>
+
+                {% if request.user.is_authenticated %}
+                {% if request.user.role == 'manager' %}
+                <a href="{% url 'manage_users' %}" class="hover:text-yellow-400 transition">👥 المستخدمين</a>
+                <a href="{% url 'manage_months' %}" class="hover:text-yellow-400 transition">📅 ادارة الشهور</a>
+
+                {% endif %}
+                <a href="{% url 'logout' %}" class="hover:text-red-400 transition">🚪 تسجيل الخروج</a>
+                {% else %}
+                <a href="{% url 'login' %}" class="hover:text-green-400 transition">🔐 تسجيل الدخول</a>
+                {% endif %}
+            </nav>
+        </div>
+    </header>
+
+    <!-- ✅ MAIN CONTENT -->
+    <main class="container mx-auto px-4 py-6 flex-grow">
+        {% for message in messages %}
+        <div id="message-{{ forloop.counter }}" class="mb-4 p-4 rounded-lg text-white
+                    {% if message.tags == 'success' %}bg-green-500
+                    {% elif message.tags == 'error' %}bg-red-500
+                    {% else %}bg-blue-500{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- ✅ FIXED FOOTER -->
+    <footer class="bg-gray-800 text-gray-200 text-center py-4 mt-auto">
+        <p>  OPTI-MANAGE | Created by : <strong class="text-red-400">Eng. Mohanad Ahmed
+                Khalil</strong></p>
+    </footer>
+
+    <script>
+        setTimeout(() => {
+            document.querySelectorAll('[id^="message-"]').forEach(el => {
+                el.style.transition = "opacity 0.5s ease";
+                el.style.opacity = "0";
+                setTimeout(() => el.remove(), 500);  // يمسح العنصر بعد التلاشي
+            });
+        }, 4000);
+    </script>
+    
+    
+
+</body>
+
+</html>
+

@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block title %}إدارة الشهور المالية{% endblock %}
+
+{% block content %}
+<h1 class="text-2xl font-bold mb-6 text-gray-800">📅 إدارة الشهور المالية</h1>
+
+<div class="overflow-x-auto bg-white shadow rounded-xl">
+    <table class="w-full text-center border-separate border-spacing-y-2">
+        <thead class="bg-gray-100 text-gray-700">
+            <tr>
+                <th class="px-4 py-2">الشهر</th>
+                <th class="px-4 py-2">الحالة</th>
+                <th class="px-4 py-2">ملاحظات</th>
+                <th class="px-4 py-2">إجراء</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for session in months %}
+            <tr class="bg-white hover:bg-gray-50 transition">
+                <td class="px-4 py-2 font-medium">{{ session.month|date:"F Y" }}</td>
+                <td class="px-4 py-2">
+                    {% if session.status == 'open' %}
+                    <span class="text-green-600 font-semibold">مفتوح</span>
+                    {% else %}
+                    <span class="text-red-600 font-semibold">مغلق</span>
+                    {% endif %}
+                </td>
+                <td class="px-4 py-2">{{ session.notes|default:"—" }}</td>
+                <td class="px-4 py-2">
+                    <a href="{% url 'toggle_month_status' session.id %}"
+                        class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-4 py-1 rounded transition">
+                        {% if session.status == 'open' %}🔒 إغلاق{% else %}🔓 فتح{% endif %}
+                    </a>
+                    <a href="{% url 'monthly_report' session.id %}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-1 rounded">
+                        📊 عرض التقرير
+                    </a>
+
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4" class="text-gray-500 py-4">لا توجد شهور مسجلة بعد.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

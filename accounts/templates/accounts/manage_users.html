@@ -1,0 +1,57 @@
+{# accounts/templates/accounts/manage_users.html #}
+{% extends 'base.html' %}
+
+{% block title %}إدارة المستخدمين{% endblock %}
+
+{% block content %}
+<h1 class="text-3xl font-extrabold text-gray-800 mb-6">🧑‍💻 إدارة المستخدمين</h1>
+
+<div class="flex flex-wrap gap-4 mb-6">
+    <a href="{% url 'add_employee' %}"
+        class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl shadow hover:scale-105 transition transform duration-300 text-lg font-semibold">
+        ➕ إضافة مستخدم جديد
+    </a>
+</div>
+
+<div class="overflow-x-auto bg-white shadow rounded-xl">
+    <table class="w-full table-auto text-center border-separate border-spacing-y-2">
+        <thead class="bg-gray-100 text-gray-700 text-sm md:text-base">
+            <tr>
+                <th class="px-4 py-3">اسم المستخدم</th>
+                <th class="px-4 py-3">الاسم الكامل</th>
+                <th class="px-4 py-3">الدور</th>
+                <th class="px-4 py-3">تاريخ الانضمام</th>
+                <th class="px-4 py-3">نشط؟</th>
+                <th class="px-4 py-3">مشرف؟</th>
+                <th class="px-4 py-3">خيارات</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user_obj in users %}
+            <tr class="bg-gray-50 hover:bg-gray-100 transition text-sm md:text-base">
+                <td class="px-4 py-2 font-semibold text-gray-800">{{ user_obj.username }}</td>
+                <td class="px-4 py-2 text-gray-700">{{ user_obj.get_full_name }}</td>
+                <td class="px-4 py-2 text-gray-600">{{ user_obj.get_role_display }}</td>
+                <td class="px-4 py-2 text-gray-600">{{ user_obj.date_joined|date:"Y-m-d H:i" }}</td>
+                <td class="px-4 py-2">
+                    {% if user_obj.is_active %}✅{% else %}❌{% endif %}
+                </td>
+                <td class="px-4 py-2">
+                    {% if user_obj.is_superuser %}✅{% else %}❌{% endif %}
+                </td>
+                <td class="px-4 py-2 flex justify-center gap-3">
+                    {% if not user_obj.is_superuser %} 
+                    <a href="{% url 'delete_user' user_obj.id %}"
+                        class="text-red-600 hover:text-red-800 font-semibold transition">حذف</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7" class="px-4 py-2 text-gray-500">لا يوجد مستخدمون آخرون لإدارتهم.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

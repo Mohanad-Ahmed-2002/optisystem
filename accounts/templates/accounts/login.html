@@ -1,0 +1,54 @@
+{# accounts/templates/accounts/login.html #}
+{% extends 'base.html' %}
+
+{% block title %}تسجيل الدخول{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-center min-h-screen bg-gray-100">
+    <div class="w-full max-w-md p-8 space-y-6 bg-white rounded-xl shadow-lg">
+        <h2 class="text-3xl font-extrabold text-center text-gray-900">تسجيل الدخول</h2>
+
+        {# رسائل Django (success/error/info) ستظهر في base.html #}
+
+        <form method="post" class="space-y-4">
+            {% csrf_token %}
+
+            {# عرض حقول النموذج يدوياً لتطبيق Tailwind CSS #}
+            <div>
+                <label for="{{ form.username.id_for_label }}" class="sr-only">اسم المستخدم</label>
+                {{ form.username }}
+                {% if form.username.errors %}
+                {% for error in form.username.errors %}
+                <p class="text-red-500 text-xs mt-1">{{ error }}</p>
+                {% endfor %}
+                {% endif %}
+            </div>
+
+            <div>
+                <label for="{{ form.password.id_for_label }}" class="sr-only">كلمة المرور</label>
+                {{ form.password }}
+                {% if form.password.errors %}
+                {% for error in form.password.errors %}
+                <p class="text-red-500 text-xs mt-1">{{ error }}</p>
+                {% endfor %}
+                {% endif %}
+            </div>
+
+            {% if form.non_field_errors %}
+            <div class="text-red-500 text-sm">
+                {% for error in form.non_field_errors %}
+                <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div>
+                <button type="submit"
+                    class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-lg font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    تسجيل الدخول
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

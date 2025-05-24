@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block title %}تحديث الدفع{% endblock %}
+{% block content %}
+
+<div class="max-w-md mx-auto bg-white shadow p-6 rounded-xl mt-10">
+    <h1 class="text-xl font-bold mb-4 text-gray-800">💳 تحديث المبلغ المدفوع</h1>
+    <p class="mb-4">الإجمالي: <strong>{{ invoice.total }}</strong></p>
+
+    <form method="POST">
+        {% csrf_token %}
+        <label class="block mb-2 font-semibold">المبلغ المدفوع الجديد:</label>
+        <input type="number" step="0.01" name="amount_paid" value="{{ invoice.amount_paid }}"
+            class="form-input w-full mb-4" required>
+
+        <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
+            حفظ التعديلات
+        </button>
+    </form>
+</div>
+
+{% endblock %}

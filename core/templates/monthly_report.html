@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% block title %}تقرير شهر {{ session.month|date:"F Y" }}{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto mt-10 bg-white p-6 rounded-2xl shadow">
+    <h1 class="text-2xl font-bold text-gray-800 mb-6 text-center">📊 تقرير شهر {{ session.month|date:"F Y" }}</h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center mb-6">
+        <div class="bg-gray-100 p-4 rounded-lg shadow">
+            <h2 class="text-lg font-semibold text-gray-700">إجمالي المبيعات</h2>
+            <p class="text-green-700 text-xl font-bold">{{ total_sales }}</p>
+        </div>
+        <div class="bg-gray-100 p-4 rounded-lg shadow">
+            <h2 class="text-lg font-semibold text-gray-700">إجمالي المصروفات</h2>
+            <p class="text-red-600 text-xl font-bold">{{ total_expenses }}</p>
+        </div>
+        <div class="bg-gray-100 p-4 rounded-lg shadow">
+            <h2 class="text-lg font-semibold text-gray-700">صافي الربح</h2>
+            <p class="text-blue-700 text-xl font-bold">{{ profit }}</p>
+        </div>
+    </div>
+
+    <h2 class="text-xl font-bold text-gray-800 mt-8 mb-3">🧾 الفواتير</h2>
+    <div class="overflow-x-auto mb-6">
+        <table class="w-full table-auto text-center border-separate border-spacing-y-2">
+            <thead class="bg-gray-200 text-gray-700">
+                <tr>
+                    <th class="px-4 py-2">الرقم</th>
+                    <th class="px-4 py-2">العميل</th>
+                    <th class="px-4 py-2">الإجمالي</th>
+                    <th class="px-4 py-2">التاريخ</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for invoice in invoices %}
+                <tr class="bg-white hover:bg-gray-100 transition">
+                    <td class="px-4 py-2">{{ invoice.id }}</td>
+                    <td class="px-4 py-2">{{ invoice.customer.name }}</td>
+                    <td class="px-4 py-2 text-green-700 font-semibold">{{ invoice.total }}</td>
+                    <td class="px-4 py-2">{{ invoice.date|date:"Y-m-d" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-gray-500 py-4">لا توجد فواتير في هذا الشهر.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <h2 class="text-xl font-bold text-gray-800 mb-3">💸 المصروفات</h2>
+    <div class="overflow-x-auto">
+        <table class="w-full table-auto text-center border-separate border-spacing-y-2">
+            <thead class="bg-gray-200 text-gray-700">
+                <tr>
+                    <th class="px-4 py-2">الرقم</th>
+                    <th class="px-4 py-2">الوصف</th>
+                    <th class="px-4 py-2">المبلغ</th>
+                    <th class="px-4 py-2">التاريخ</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for expense in expenses %}
+                <tr class="bg-white hover:bg-gray-100 transition">
+                    <td class="px-4 py-2">{{ expense.id }}</td>
+                    <td class="px-4 py-2">{{ expense.description }}</td>
+                    <td class="px-4 py-2 text-red-600 font-semibold">{{ expense.amount }}</td>
+                    <td class="px-4 py-2">{{ expense.date|date:"Y-m-d" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-gray-500 py-4">لا توجد مصروفات في هذا الشهر.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

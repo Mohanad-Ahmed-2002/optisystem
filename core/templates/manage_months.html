@@ -26,15 +26,15 @@
                     {% endif %}
                 </td>
                 <td class="px-4 py-2">{{ session.notes|default:"—" }}</td>
-                <td class="px-4 py-2">
+                <td class="px-4 py-2 flex flex-col md:flex-row gap-2 items-center justify-center">
                     <a href="{% url 'toggle_month_status' session.id %}"
-                        class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-4 py-1 rounded transition">
+                        class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md transition">
                         {% if session.status == 'open' %}🔒 إغلاق{% else %}🔓 فتح{% endif %}
                     </a>
-                    <a href="{% url 'monthly_report' session.id %}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-1 rounded">
+                    <a href="{% url 'monthly_report' session.id %}"
+                        class="bg-green-600 hover:bg-green-700 text-white text-xs px-3 py-1 rounded-md transition">
                         📊 عرض التقرير
                     </a>
-
                 </td>
             </tr>
             {% empty %}

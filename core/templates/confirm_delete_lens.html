@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block title %}حذف العدسة{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto mt-10 bg-white p-6 rounded-2xl shadow-xl border border-gray-200 text-center">
+    <h2 class="text-xl font-extrabold text-red-600 mb-3">🗑️ حذف العدسة</h2>
+    <p class="mb-6 text-gray-700 font-semibold">
+        هل أنت متأكد أنك تريد حذف العدسة:
+        <span class="text-[#2d2a32] font-bold">{{ lens.name }}</span>
+        {% if lens.company %}
+        <span class="text-gray-500 font-normal">- {{ lens.company }}</span>
+        {% endif %}
+        ؟
+    </p>
+    <form method="post" class="flex flex-col gap-3">
+        {% csrf_token %}
+        <button type="submit"
+            class="w-full bg-red-600 hover:bg-red-700 text-white py-2.5 rounded-xl font-bold text-base shadow">
+            نعم، حذف العدسة
+        </button>
+        <a href="{% url 'lens_list' %}"
+            class="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 py-2.5 rounded-xl font-bold text-base shadow">
+            إلغاء
+        </a>
+    </form>
+</div>
+{% endblock %}

@@ -2,16 +2,16 @@
 {% block title %}إضافة فاتورة{% endblock %}
 
 {% block content %}
-<div class="max-w-5xl mx-auto mt-10 bg-white p-6 rounded-2xl shadow-md">
-    <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">➕ إضافة فاتورة جديدة</h2>
+<div class="max-w-5xl mx-auto bg-white p-10 rounded-3xl shadow-xl">
+    <h2 class="text-3xl font-extrabold text-center text-[#2d2a32] mb-10">➕ إضافة فاتورة جديدة</h2>
 
-    <form method="POST" class="space-y-6">
+    <form method="POST" class="space-y-8">
         {% csrf_token %}
 
         <!-- اختيار العميل -->
         <div>
-            <label for="customerSelect" class="block font-semibold mb-1">👤 اختر العميل</label>
-            <select name="customer" id="customerSelect" class="w-full border p-2 rounded"
+            <label for="customerSelect" class="block font-semibold text-gray-700 mb-2">👤 اختر العميل</label>
+            <select name="customer" id="customerSelect" class="w-full border border-gray-300 p-3 rounded-xl"
                 onchange="toggleNewCustomer(this)">
                 <option value="">-- اختر --</option>
                 {% for c in customers %}
@@ -22,74 +22,138 @@
         </div>
 
         <!-- نموذج العميل الجديد -->
-        <div id="newCustomerForm" class="space-y-3 hidden bg-gray-50 border p-4 rounded-lg">
-            <h3 class="font-bold text-gray-700">معلومات العميل الجديد</h3>
+        <div id="newCustomerForm" class="space-y-4 hidden bg-gray-50 border p-5 rounded-xl">
+            <h3 class="font-bold text-[#007f5f]">معلومات العميل الجديد</h3>
             {{ customer_form.as_p }}
         </div>
 
-        <!-- طريقة الدفع / الخصم / المدفوع -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-                <label class="block font-semibold mb-1">💳 طريقة الدفع</label>
-                <select name="payment_method" class="w-full border p-2 rounded">
+                <label class="block font-semibold text-gray-700 mb-2">🧾 نوع الفاتورة</label>
+                <select name="sale_type" class="w-full border border-gray-300 p-3 rounded-xl" required>
+                    <option value="قطاعي">قطاعي</option>
+                    <option value="جملة">جملة</option>
+                </select>
+            </div>
+            <!-- عنصر الدفع الموجود بالفعل -->
+        </div>
+
+
+        <!-- الدفع والخصم والمدفوع -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+                <label class="block font-semibold text-gray-700 mb-2">💳 طريقة الدفع</label>
+                <select name="payment_method" class="w-full border border-gray-300 p-3 rounded-xl">
                     <option value="نقدًا">نقدًا</option>
                     <option value="فيزا">فيزا</option>
                     <option value="آجل">آجل</option>
                 </select>
             </div>
             <div>
-                <label class="block font-semibold mb-1"> الخصم</label>
-                <input type="number" step="0.01" name="discount" class="w-full border p-2 rounded"
-                    >
+                <label class="block font-semibold text-gray-700 mb-2">خصم</label>
+                <input type="number" step="0.01" name="discount" class="w-full border border-gray-300 p-3 rounded-xl">
             </div>
             <div>
-                <label class="block font-semibold mb-1">💰 المدفوع</label>
-                <input type="number" step="0.01" name="amount_paid" class="w-full border p-2 rounded" value="0.00">
+                <label class="block font-semibold text-gray-700 mb-2">💰 المدفوع</label>
+                <input type="number" step="0.01" name="amount_paid" class="w-full border border-gray-300 p-3 rounded-xl"
+                    value="0.00">
             </div>
         </div>
 
         <!-- المنتجات -->
         <div>
-            <h3 class="text-lg font-bold mt-6 mb-3">📦 المنتجات</h3>
+            <h3 class="text-xl font-bold text-gray-800 mb-4">📦 المنتجات</h3>
             <div id="products-area" class="space-y-4">
-
-                <!-- أول صف منتج -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end product-item">
-                    <select name="product_ids" class="border p-2 rounded w-full">
+                    <select name="product_ids" class="border border-gray-300 p-3 rounded-xl w-full">
                         {% for product in products %}
                         <option value="{{ product.id }}">{{ product.name }} ({{ product.sell_price }} ج.م)</option>
                         {% endfor %}
                     </select>
 
-                    <input type="number" name="quantities" class="border p-2 rounded w-full" placeholder="الكمية">
+                    <input type="number" name="quantities" class="border border-gray-300 p-3 rounded-xl w-full"
+                        placeholder="الكمية">
 
                     <button type="button" onclick="removeProduct(this)"
-                        class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded text-sm">
+                        class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl text-sm">
                         🗑️ حذف
                     </button>
                 </div>
             </div>
 
-            <!-- زر إضافة صف -->
-            <div class="mt-4 text-center">
+            <div class="mt-6 text-center">
                 <button type="button" onclick="addProduct()"
-                    class="bg-gray-700 hover:bg-gray-800 text-white px-6 py-2 rounded-lg text-sm font-semibold">
+                    class="bg-[#2d2a32] hover:bg-[#3a3840] text-white px-6 py-2 rounded-xl text-sm font-semibold">
                     ➕ إضافة منتج آخر
                 </button>
             </div>
         </div>
 
-        <!-- زر الحفظ -->
+        <!-- العدسات -->
+        <div>
+            <h3 class="text-xl font-bold text-gray-800 mb-4">🕶️ العدسات</h3>
+            <div id="lenses-area" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end lens-item">
+                    <select name="lens_ids" class="border border-gray-300 p-3 rounded-xl w-full">
+                        {% for lens in lenses %}
+                        <option value="{{ lens.id }}">{{ lens.name }} ({{ lens.sell_price }} ج.م)</option>
+
+                        {% endfor %}
+                    </select>
+
+                    <input type="number" name="lens_quantities" class="border border-gray-300 p-3 rounded-xl w-full"
+                        placeholder="الكمية">
+
+                    <button type="button" onclick="removeLens(this)"
+                        class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl text-sm">
+                        🗑️ حذف
+                    </button>
+                </div>
+            </div>
+
+            <div class="mt-6 text-center">
+                <button type="button" onclick="addLens()"
+                    class="bg-[#2d2a32] hover:bg-[#3a3840] text-white px-6 py-2 rounded-xl text-sm font-semibold">
+                    ➕ إضافة عدسة أخرى
+                </button>
+            </div>
+        </div>
+
+        <script>
+            function addLens() {
+                const lensesArea = document.getElementById('lenses-area');
+                const firstLensItem = lensesArea.querySelector('.lens-item');
+                const newLensItem = firstLensItem.cloneNode(true);
+
+                newLensItem.querySelector('select[name="lens_ids"]').value = '';
+                newLensItem.querySelector('input[name="lens_quantities"]').value = '';
+                newLensItem.querySelector('button[onclick="removeLens(this)"]').classList.remove('hidden');
+
+                lensesArea.appendChild(newLensItem);
+            }
+
+            function removeLens(button) {
+                const lensItem = button.closest('.lens-item');
+                if (document.querySelectorAll('.lens-item').length > 1) {
+                    lensItem.remove();
+                } else {
+                    alert('يجب أن تحتوي الفاتورة على عدسة واحدة على الأقل.');
+                }
+            }
+        </script>
+
+
+        <!-- حفظ -->
         <div class="text-center pt-6">
             <button type="submit"
-                class="bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-8 rounded-lg text-lg transition">
+                class="bg-[#007f5f] hover:bg-[#009f75] text-white font-bold py-3 px-10 rounded-xl text-lg shadow-lg">
                 💾 حفظ الفاتورة
             </button>
         </div>
     </form>
 </div>
 
-<!-- ✅ سكربت الأصلي بتاعك -->
+<!-- ✅ سكربت الأصلي ثابت ومفعل -->
 <script>
     function toggleNewCustomer(select) {
         const newCustomerForm = document.getElementById('newCustomerForm');

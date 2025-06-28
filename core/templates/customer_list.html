@@ -1,0 +1,44 @@
+
+{% extends 'base.html' %}
+{% block title %}العملاء{% endblock %}
+{% block content %}
+<div class="max-w-6xl mx-auto mt-6 p-4 bg-white rounded-2xl shadow border">
+  <h2 class="text-xl font-extrabold text-center text-[#2d2a32] mb-6">📋 قائمة العملاء</h2>
+
+  <form method="GET" class="mb-4 text-center">
+    <input type="text" name="search" placeholder="ابحث بالاسم أو رقم الهاتف" value="{{ search_query }}"
+           class="p-2 border rounded w-full max-w-md shadow text-sm">
+  </form>
+
+  <div class="overflow-x-auto">
+    <table class="min-w-full text-sm text-center border">
+      <thead class="bg-gray-100 font-bold">
+        <tr>
+          <th class="border p-2">الاسم</th>
+          <th class="border p-2">رقم الهاتف</th>
+          <th class="border p-2 hidden md:table-cell">العنوان</th>
+          <th class="border p-2">عرض</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for customer in customers %}
+        <tr class="hover:bg-gray-50">
+          <td class="border p-2">{{ customer.name }}</td>
+          <td class="border p-2">{{ customer.phone }}</td>
+          <td class="border p-2 hidden md:table-cell">{{ customer.address }}</td>
+          <td class="border p-2">
+            <a href="{% url 'customer_detail' customer.id %}"
+              class="inline-flex items-center justify-center gap-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-xl text-xs shadow">
+              👁️ <span>عرض</span>
+            </a>
+
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5" class="text-center p-4">لا يوجد عملاء</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

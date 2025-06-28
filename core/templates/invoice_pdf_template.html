@@ -3,61 +3,103 @@
 
 <head>
     <meta charset="UTF-8">
+    <title>فاتورة رقم {{ invoice.id }}</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
             direction: rtl;
-            text-align: right;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .header,
+        .footer {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .section {
+            margin-bottom: 20px;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            margin-top: 10px;
         }
 
-        td,
-        th {
-            border: 1px solid black;
+        table,
+        th,
+        td {
+            border: 1px solid #333;
+        }
+
+        th,
+        td {
             padding: 8px;
+            text-align: center;
         }
 
         .total {
-            font-weight: bold;
-            background-color: #f0f0f0;
+            text-align: right;
+            margin-top: 20px;
         }
     </style>
 </head>
 
 <body>
 
-    <h1 class="font-bold text-2xl text-blue">MO-OPTICS</h1>
-    <h2>فاتورة بيع رقم {{ invoice.id }}</h2>
-    <p>العميل: {{ invoice.customer.name }}</p>
-    <p>التاريخ: {{ invoice.created_at|date:"Y-m-d H:i" }}</p>
+    <div class="header">
+        <h2>{{ shop.name }}</h2>
+        <p>فاتورة رقم {{ invoice.id }}</p>
+        <p>تاريخ: {{ invoice.date|date:"Y-m-d H:i" }}</p>
+    </div>
 
-    <table>
-        <thead>
-            <tr>
-                <th>المنتج</th>
-                <th>الكمية</th>
-                <th>السعر</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for item in items %}
-            <tr>
-                <td>{{ item.product.name }}</td>
-                <td>{{ item.quantity }}</td>
-                <td>{{ item.price }}</td>
-            </tr>
-            {% endfor %}
-            <tr class="total">
-                <td colspan="2" style="text-align:right;">الإجمالي الكلي:</td>
-                <td>{{ invoice.total }}</td>
-            </tr>
-        </tbody>
-    </table>
+    <div class="section">
+        <strong>العميل:</strong> {{ invoice.customer.name }}<br>
+        {% if invoice.customer.phone %}
+        <strong>الهاتف:</strong> {{ invoice.customer.phone }}<br>
+        {% endif %}
+        {% if invoice.customer.address %}
+        <strong>العنوان:</strong> {{ invoice.customer.address }}
+        {% endif %}
+    </div>
+
+    <div class="section">
+        <table>
+            <thead>
+                <tr>
+                    <th>الصنف</th>
+                    <th>الكمية</th>
+                    <th>السعر</th>
+                    <th>الإجمالي</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr>
+                    <td>{{ item.get_name }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ item.price }}</td>
+                    <td>{{ item.line_total }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="total">
+        <p><strong>إجمالي قبل الخصم:</strong> {{ invoice.total|add:invoice.discount }}</p>
+        <p><strong>الخصم:</strong> {{ invoice.discount }}</p>
+        <p><strong>الصافي بعد الخصم:</strong> {{ invoice.total }}</p>
+        <p><strong>المدفوع:</strong> {{ invoice.amount_paid }}</p>
+        <p><strong>المتبقي:</strong> {{ invoice.remaining_amount }}</p>
+    </div>
+
+    <div class="footer">
+        <p>شكرًا لتعاملكم معنا</p>
+    </div>
+
 </body>
 
 </html>

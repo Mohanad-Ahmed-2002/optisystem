@@ -2,11 +2,16 @@
 {% block title %}تفاصيل الفاتورة{% endblock %}
 
 {% block content %}
-<div class="max-w-4xl mx-auto mt-10 bg-white p-6 rounded-2xl shadow">
-    <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">🧾 تفاصيل الفاتورة رقم #{{ invoice.id }}</h2>
+<div class="max-w-5xl mx-auto mt-2 bg-white p-4 rounded-3xl shadow-xl">
+    <h2 class="text-3xl font-extrabold text-center text-[#2d2a32] mb-8">🧾 تفاصيل الفاتورة رقم #{{ invoice.id }}</h2>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 text-gray-700">
+    <!-- بيانات الفاتورة -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8 text-gray-700">
         <p><strong>👤 العميل:</strong> {{ invoice.customer.name }}</p>
+        <p><strong>📍 العنوان:</strong> {{ invoice.customer.address }}</p>
+        <p><strong>📞 ملاحظات:</strong> {{ invoice.customer.notes }}</p>
+        <p><strong>📞 الهاتف:</strong> {{ invoice.customer.phone }}</p>
+        <p><strong>🧾 نوع الفاتورة:</strong> {{ invoice.sale_type }}</p>
         <p><strong>💳 طريقة الدفع:</strong> {{ invoice.payment_method }}</p>
         <p><strong>📅 التاريخ:</strong> {{ invoice.created_at|date:"Y-m-d H:i" }}</p>
         <p><strong>💰 الإجمالي:</strong> {{ invoice.total }}</p>
@@ -17,51 +22,86 @@
         {% endif %}
     </div>
 
-    <h3 class="text-lg font-bold text-gray-800 mb-3">📦 المنتجات:</h3>
-    <div class="overflow-x-auto mb-6">
+    <!-- المنتجات -->
+    <h3 class="text-xl font-bold text-gray-800 mb-4">📦 المنتجات:</h3>
+    <div class="overflow-x-auto mb-8">
         <table class="w-full table-auto border-separate border-spacing-y-2 text-center">
             <thead class="bg-gray-100 text-gray-700">
                 <tr>
-                    <th class="px-4 py-3">المنتج</th>
-                    <th class="px-4 py-3">الكمية</th>
-                    <th class="px-4 py-3">السعر</th>
-                    <th class="px-4 py-3">الإجمالي</th>
+                    <th class="px-4 py-2">المنتج</th>
+                    <th class="px-4 py-2">الكمية</th>
+                    <th class="px-4 py-2">السعر</th>
+                    <th class="px-4 py-2">الإجمالي</th>
                 </tr>
             </thead>
             <tbody>
                 {% for item in items %}
-                <tr class="bg-gray-50 hover:bg-gray-100 transition">
-                    <td class="px-4 py-2 font-medium text-gray-800">{{ item.product.name }}</td>
-                    <td class="px-4 py-2 text-gray-700">{{ item.quantity }}</td>
-                    <td class="px-4 py-2 text-gray-700">{{ item.price }}</td>
-                    <td class="px-4 py-2 text-green-700 font-semibold">{{ item.line_total }}</td>
-
-                    
+                <tr class="bg-white hover:bg-gray-50 transition">
+                    <td class="px-4 py-2 font-semibold text-gray-800">{{ item.get_name }}</td>
+                    <td class="px-4 py-2">{{ item.quantity }}</td>
+                    <td class="px-4 py-2">{{ item.price }}</td>
+                    <td class="px-4 py-2 text-green-700 font-bold">{{ item.line_total }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
 
+    <!-- الدفعات -->
+    <h3 class="text-xl font-bold text-gray-800 mb-4">💳 الدفعات السابقة:</h3>
+    <p class="text-gray-700 font-semibold mb-2">
+        💵 مجموع الدفعات: <span class="text-green-700 font-bold">{{ invoice.amount_paid }}</span>
+    </p>
+    
+    {% if invoice.payments.all %}
+    <div class="overflow-x-auto mb-8">
+        <table class="w-full table-auto text-center border-separate border-spacing-y-2">
+            <thead class="bg-gray-100 text-gray-700">
+                <tr>
+                    <th class="px-4 py-2">📅 التاريخ</th>
+                    <th class="px-4 py-2">💵 المبلغ</th>
+                    <th class="px-4 py-2">📝 ملاحظات</th>
+                    <th class="px-4 py-2">🗑️ حذف</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for payment in invoice.payments.all|dictsortreversed:"date" %}
+                <tr class="bg-white hover:bg-gray-50 transition">
+                    <td class="px-4 py-2">{{ payment.date|date:"Y-m-d H:i" }}</td>
+                    <td class="px-4 py-2 text-green-700 font-bold">{{ payment.amount }}</td>
+                    <td class="px-4 py-2">{{ payment.notes|default:"—" }}</td>
+                    <td class="px-4 py-2">
+                        <a href="{% url 'delete_payment' payment.id %}"
+                            onclick="return confirm('هل أنت متأكد من حذف هذه الدفعة؟')"
+                            class="text-red-600 hover:text-red-800 font-bold text-sm">
+                            حذف
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p class="text-gray-600 mb-6">لا توجد دفعات مسجلة.</p>
+    {% endif %}
+
     <!-- الأزرار -->
     <div class="flex flex-wrap justify-center md:justify-start gap-4 mt-8">
-        <a href="{% url 'print_invoice' invoice.id %}" target="_blank"
-            class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg shadow text-sm transition">
+        <a href="{% url 'print_invoice' invoice.id %}" onclick="openAndPrint(this.href); return false;"
+            class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-xl shadow text-sm transition">
             🖨️ طباعة الفاتورة
         </a>
-        <a href="{% url 'update_invoice_payment' invoice.id %}"
-            class="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-2 rounded-lg shadow text-sm transition">
-            💳 تعديل الدفع
+
+        <a href="{% url 'add_payment' invoice.id %}"
+            class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-xl shadow text-sm transition">
+            ➕ إضافة دفعة
         </a>
+
         <a href="{% url 'invoice_pdf' invoice.id %}"
-            class="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg shadow text-sm transition">
+            class="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-xl shadow text-sm transition">
             📥 تحميل PDF
         </a>
     </div>
 </div>
 {% endblock %}
-
-
-
-
-

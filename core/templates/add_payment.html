@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}إضافة دفعة{% endblock %}
+
+{% block content %}
+<div class="max-w-xl mx-auto bg-white p-10 mt-10 rounded-3xl shadow-xl">
+    <h2 class="text-2xl font-extrabold text-center text-[#2d2a32] mb-6">➕ إضافة دفعة لفاتورة رقم {{ invoice.id }}</h2>
+    <form method="post" class="space-y-6">
+        {% csrf_token %}
+
+        <div>
+            <label class="block mb-2 font-semibold text-gray-700">💰 المبلغ:</label>
+            <input type="number" name="amount" step="0.01" required
+                class="w-full border border-gray-300 p-3 rounded-xl">
+        </div>
+
+        <div>
+            <label class="block mb-2 font-semibold text-gray-700">📝 ملاحظات (اختياري):</label>
+            <textarea name="notes" class="w-full border border-gray-300 p-3 rounded-xl"></textarea>
+        </div>
+
+        <div class="text-center pt-4">
+            <button type="submit"
+                class="bg-[#007f5f] hover:bg-[#009f75] text-white px-8 py-3 rounded-xl text-lg font-bold shadow-lg">
+                💾 حفظ الدفعة
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

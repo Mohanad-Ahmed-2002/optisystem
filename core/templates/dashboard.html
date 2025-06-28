@@ -2,80 +2,101 @@
 {% block title %}لوحة التحكم{% endblock %}
 
 {% block content %}
-<div class="flex flex-wrap gap-4 mb-8">
-    {% if request.user.role == 'manager' or request.user.is_superuser %}
-    <a href="{% url 'add_employee' %}"
-        class="bg-gradient-to-r from-pink-500 to-red-500 text-white px-6 py-3 rounded-xl shadow-md hover:scale-105 transition duration-300 text-lg font-semibold">
-        👤 إضافة موظف
-    </a>
-    <a href="{% url 'add_product' %}"
-        class="bg-gradient-to-r from-blue-700 to-blue-900 text-white px-6 py-3 rounded-xl shadow-md hover:scale-105 transition duration-300 text-lg font-semibold">
-        ➕ منتج جديد
-    </a>
-    <a href="{% url 'add_expense' %}"
-        class="bg-white text-black px-6 py-3 rounded-xl border border-gray-300 shadow hover:scale-105 transition duration-300 text-lg font-semibold">
-        💰 إضافة مصروف
-    </a>
-    {% endif %}
-    <a href="{% url 'add_invoice' %}"
-        class="bg-gradient-to-r from-green-500 to-teal-500 text-white px-6 py-3 rounded-xl shadow-md hover:scale-105 transition duration-300 text-lg font-semibold">
-        ➕ فاتورة جديدة
-    </a>
-</div>
+<div class="h-full flex flex-col space-y-6">
 
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10 text-center">
-    <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-200 hover:shadow-lg transition">
-        <h3 class="text-xl font-bold text-gray-800 mb-2">اليوم</h3>
-        <p class="text-gray-600">عدد الفواتير: <strong class="text-green-700">{{ daily_count }}</strong></p>
-        <p class="text-gray-600">إجمالي: <strong class="text-green-700">{{ daily_total }}</strong></p>
+    <!-- أزرار العمليات -->
+    <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+        {% if request.user.role == 'manager' or request.user.is_superuser %}
+        <a href="{% url 'add_employee' %}"
+            class="bg-[#2d2a32] text-white py-4 rounded-xl shadow hover:shadow-md hover:bg-[#3c3844] transition text-center font-semibold">
+            👤 إضافة موظف
+        </a>
+        {% endif %}
+        <a href="{% url 'add_product' %}"
+            class="bg-[#004e64] text-white py-4 rounded-xl shadow hover:shadow-md hover:bg-[#00657d] transition text-center font-semibold">
+            ➕ منتج جديد
+        </a>
+        <a href="{% url 'add_expense' %}"
+            class="bg-[#9a031e] text-white py-4 rounded-xl shadow hover:shadow-md hover:bg-[#b30d2f] transition text-center font-semibold">
+            💰 إضافة مصروف
+        </a>
+        <a href="{% url 'add_invoice' %}"
+            class="flex items-center justify-center gap-2 bg-[#007f5f] text-white py-4 rounded-xl shadow hover:shadow-md hover:bg-[#009f75] transition text-center font-semibold">
+            ➕ <span>فاتورة جديدة</span>
+        </a>
     </div>
 
-    <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-200 hover:shadow-lg transition">
-        <h3 class="text-xl font-bold text-gray-800 mb-2">هذا الشهر</h3>
-        <p class="text-gray-600">عدد الفواتير: <strong class="text-green-700">{{ monthly_count }}</strong></p>
-        <p class="text-gray-600">إجمالي: <strong class="text-green-700">{{ monthly_total }}</strong></p>
+    <div class="text-center text-2xl font-bold text-[#004e64] mt-4">
+         مرحبًا بك في <span class="text-blue ">{{ shop_name }}</span>
+    </div>
+    
+
+    <!-- كروت الإحصائيات -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+        <div
+            class="bg-white p-6 rounded-xl shadow hover:shadow-md border border-gray-100 transition hover:scale-[1.01]">
+            <h3 class="text-lg font-bold text-gray-900 mb-2">📅 اليوم</h3>
+            <p class="text-gray-700">اجمالي المبيعـات: <strong class="text-[#007f5f]">{{ daily_total }}</strong></p>
+        </div>
+        <div
+            class="bg-white p-6 rounded-xl shadow hover:shadow-md border border-gray-100 transition hover:scale-[1.01]">
+            <h3 class="text-lg font-bold text-gray-900 mb-2">🗓️ هذا الشهر</h3>
+            <p class="text-gray-700">اجمالي المبيعـات: <strong class="text-[#007f5f]">{{ monthly_total }}</strong></p>
+        </div>
+        <div
+            class="bg-white p-6 rounded-xl shadow hover:shadow-md border border-gray-100 transition hover:scale-[1.01]">
+            <h3 class="text-lg font-bold text-gray-900 mb-2">💸 المصروفات</h3>
+            <p class="text-gray-700">إجمالي المصروفات: <strong class="text-[#9a031e]">{{ monthly_expenses }}</strong>
+            </p>
+        </div>
+        <div
+            class="bg-white p-6 rounded-xl shadow hover:shadow-md border border-gray-100 transition hover:scale-[1.01]">
+            <p class="font-bold text-green-700 text-center">💰 إجمالي حركة الخزينة: {{ cash_flow_total }}</p>
+        </div>
     </div>
 
-    <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-200 hover:shadow-lg transition">
-        <h3 class="text-xl font-bold text-gray-800 mb-2">مصروفات</h3>
-        <p class="text-gray-600">إجمالي المصروفات: <strong class="text-red-600">{{ monthly_expenses }}</strong></p>
+    <!-- جدول الفواتير الحديثة -->
+    <div>
+        <h2 class="text-xl font-bold text-gray-700 mb-4">🧾 أحدث 5 فواتير</h2>
+        <div class="bg-white rounded-xl border border-gray-100 shadow p-4 overflow-x-auto">
+            <table class="w-full text-sm text-center min-w-[500px]">
+                <thead class="text-gray-500 border-b">
+                    <tr>
+                        <th class="py-2">#</th>
+                        <th class="py-2">العميل</th>
+                        <th class="py-2">المدفوع</th>
+                        <th class="py-2">المتبقي</th>
+                        <th class="py-2">الإجمالي</th>
+                        <th class="py-2">التاريخ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for invoice in latest_invoices|slice:":5" %}
+                    <tr class="text-gray-700 border-b hover:bg-gray-50">
+                        <td class="py-2">
+                            <a href="{% url 'invoice_detail' invoice.id %}" class="text-[#004e64] hover:underline">
+                                {{ invoice.id }}
+                            </a>
+                        </td>
+                        <td>
+                            <a href="{% url 'invoice_detail' invoice.id %}" class="text-blue-700 hover:underline font-semibold">
+                                {{ invoice.customer.name }}
+                            </a>
+                        </td>
+                        <td class="py-2 font-semibold text-green-700">{{ invoice.amount_paid }}</td>
+                        <td class="py-2 font-semibold text-red-600">{{ invoice.remaining_amount }}</td>
+                        <td class="py-2 font-semibold text-[#007f5f]">{{ invoice.total }}</td>
+                        <td class="py-2 text-gray-500">{{ invoice.created_at|date:"Y-m-d H:i" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="py-4 text-gray-400">لا توجد فواتير حديثة.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 
-    <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-200 hover:shadow-lg transition">
-        <h3 class="text-xl font-bold text-gray-800 mb-2">الربح الصافي</h3>
-        <p class="text-gray-600">صافي الربح: <strong class="text-teal-700">{{ monthly_profit }}</strong></p>
-    </div>
-</div>
-
-<h2 class="text-2xl font-bold text-gray-700 mb-4">🧾 أحدث الفواتير</h2>
-<div class="overflow-x-auto bg-white shadow rounded-xl">
-    <table class="w-full table-auto text-center border-separate border-spacing-y-2">
-        <thead class="bg-gray-100 text-gray-700">
-            <tr>
-                <th class="px-4 py-3">رقم</th>
-                <th class="px-4 py-3">العميل</th>
-                <th class="px-4 py-3">الإجمالي</th>
-                <th class="px-4 py-3">التاريخ</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for invoice in latest_invoices %}
-            <tr class="bg-gray-50 hover:bg-gray-100 transition">
-                <td class="px-4 py-2 text-gray-800 font-medium">
-                    <a href="{% url 'invoice_detail' invoice.id %}" class="text-blue-600 hover:underline">
-                        {{ invoice.id }}
-                    </a>
-                </td>
-                <td class="px-4 py-2 text-gray-700">{{ invoice.customer.name }}</td>
-                <td class="px-4 py-2 text-green-700 font-bold">{{ invoice.total }}</td>
-                <td class="px-4 py-2 text-gray-600">{{ invoice.created_at|date:"Y-m-d H:i" }}</td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="4" class="px-4 py-2 text-gray-500">لا توجد فواتير حديثة.</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
 </div>
 {% endblock %}

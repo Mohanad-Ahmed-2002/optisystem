@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% block title %}قائمة العدسات{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto bg-white p-6 mt-4 rounded-3xl shadow-xl border border-gray-200">
+    <h1 class="text-2xl font-extrabold text-center text-[#2d2a32] mb-6">🟢 قائمة العدسات</h1>
+
+    <form method="get" class="mb-6 flex justify-center">
+        <input type="text" name="search" value="{{ search_query }}" placeholder="🔍 بحث باسم العدسة"
+            class="border border-gray-300 rounded-xl px-4 py-2 w-1/2 text-sm">
+        <button type="submit"
+            class="ml-2 bg-[#007f5f] text-white px-4 py-2 rounded-xl hover:bg-[#009f75] text-sm font-bold">
+            بحث
+        </button>
+    </form>
+
+    <div class="mb-6 flex flex-col md:flex-row justify-between items-center gap-4">
+        <a href="{% url 'add_lens' %}"
+            class="bg-[#004e64] hover:bg-[#00657d] text-white px-5 py-2 rounded-xl shadow text-sm font-semibold">
+            ➕ إضافة عدسة
+        </a>
+    </div>
+
+    <div class="overflow-x-auto">
+        <table class="w-full table-auto text-sm text-center border-separate border-spacing-y-2">
+            <thead class="bg-gray-100 text-gray-700">
+                <tr>
+                    <th class="py-2 px-4">🟢 اسم العدسة</th>
+                    <th class="py-2 px-4">🏭 اسم الشركة</th>
+                    <th class="py-2 px-4">💵 سعر الشراء</th>
+                    <th class="py-2 px-4">💰 سعر البيع</th>
+                    <th class="py-2 px-4">✏️</th>
+                    <th class="py-2 px-4">🗑️</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for lens in lenses %}
+                <tr class="bg-white hover:bg-gray-50 transition shadow rounded-xl">
+                    <td class="py-2 px-4">{{ lens.name }}</td>
+                    <td class="py-2 px-4">{{ lens.company|default:"—" }}</td>
+                    <td class="py-2 px-4">{{ lens.buy_price }}</td>
+                    <td class="py-2 px-4 font-semibold text-[#007f5f]">{{ lens.sell_price }}</td>
+                    <td class="py-2 px-4">
+                        <a href="{% url 'edit_lens' lens.id %}"
+                            class="text-blue-600 hover:text-blue-800 font-bold text-sm">تعديل</a>
+                    </td>
+                    <td class="py-2 px-4">
+                        <a href="{% url 'delete_lens' lens.id %}"
+                            onclick="return confirm('هل أنت متأكد من حذف هذه العدسة؟')"
+                            class="text-red-600 hover:text-red-800 font-bold text-sm">حذف</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="py-4 text-gray-500">لا توجد عدسات.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if lenses.has_other_pages %}
+    <nav class="mt-6 flex justify-center text-sm font-semibold text-gray-600 space-x-1 rtl:space-x-reverse">
+        {% if lenses.has_previous %}
+        <a href="?page={{ lenses.previous_page_number }}" class="px-3 py-1 rounded-lg hover:bg-gray-100">&laquo;</a>
+        {% endif %}
+        {% for num in lenses.paginator.page_range %}
+        {% if lenses.number == num %}
+        <span class="px-3 py-1 rounded-lg bg-[#007f5f] text-white">{{ num }}</span>
+        {% else %}
+        <a href="?page={{ num }}" class="px-3 py-1 rounded-lg hover:bg-gray-100">{{ num }}</a>
+        {% endif %}
+        {% endfor %}
+        {% if lenses.has_next %}
+        <a href="?page={{ lenses.next_page_number }}" class="px-3 py-1 rounded-lg hover:bg-gray-100">&raquo;</a>
+        {% endif %}
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block title %}تعديل العدسة{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto mt-2 bg-white p-4 rounded-2xl shadow-md border border-gray-200">
+    <h2 class="text-xl font-extrabold text-center text-[#2d2a32] mb-4">✏️ تعديل بيانات العدسة</h2>
+
+    <form method="post" class="space-y-5">
+        {% csrf_token %}
+        {{ form.as_p }}
+
+        <div class="text-center">
+            <button type="submit"
+                class="w-full bg-[#007f5f] hover:bg-[#009f75] text-white py-2.5 rounded-xl font-bold text-base shadow">
+                💾 حفظ التعديلات
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

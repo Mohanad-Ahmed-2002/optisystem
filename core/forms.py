@@ -1,5 +1,6 @@
 from django import forms
-from .models import Customer, Product, Expense
+from .models import Customer, Product, Expense,Lens
+
 
 # 1. Sales Report Form (كان موجوداً)
 class SalesReportForm(forms.Form):
@@ -104,7 +105,7 @@ class ProductForm(forms.ModelForm):
 
         return cleaned_data
 
-# 3. Customer Form (تم إضافته)
+# 4. Customer Form (تم إضافته)
 class CustomerForm(forms.ModelForm):
     class Meta:
         model = Customer
@@ -139,4 +140,40 @@ class CustomerForm(forms.ModelForm):
         name = self.cleaned_data.get('name')
         if not name:
             raise forms.ValidationError("اسم العميل مطلوب.")
+        return name
+
+# 5. Lens Form (تم إضافته)
+class LensForm(forms.ModelForm):
+    class Meta:
+        model = Lens
+        fields = ['name', 'company', 'buy_price', 'sell_price']
+        labels = {
+            'name': 'اسم العدسة',
+            'company': 'اسم الشركة (اختياري)',
+            'buy_price': 'سعر الشراء',
+            'sell_price': 'سعر البيع',
+        }
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'class': 'w-full p-2 mt-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400',
+                'placeholder': 'اسم العدسة'
+            }),
+            'company': forms.TextInput(attrs={
+                'class': 'w-full p-2 mt-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400',
+                'placeholder': 'اسم الشركة (اختياري)'
+            }),
+            'buy_price': forms.NumberInput(attrs={
+                'class': 'w-full p-2 mt-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400',
+                'placeholder': 'سعر الشراء'
+            }),
+            'sell_price': forms.NumberInput(attrs={
+                'class': 'w-full p-2 mt-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400',
+                'placeholder': 'سعر البيع'
+            }),
+        }
+
+    def clean_name(self):
+        name = self.cleaned_data.get('name')
+        if not name:
+            raise forms.ValidationError("اسم العدسة مطلوب.")
         return name

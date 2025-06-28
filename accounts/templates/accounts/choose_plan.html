@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block title %}اختر خطة الاشتراك{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-transparent px-4 py-10 flex items-center justify-center">
+    <div class="max-w-4xl w-full">
+        <div class="text-center mb-10">
+            <h1 class="text-3xl md:text-4xl font-bold text-blue-600 mb-3">📦 اختر خطة الاشتراك</h1>
+            <p class="text-gray-600">اختر الخطة المناسبة لاحتياجاتك وابدأ بإدارة محلك الآن</p>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <!-- الخطة الشهرية -->
+                <label
+                    class="relative bg-white border border-blue-100 rounded-2xl shadow-md p-6 cursor-pointer transition hover:ring-2 hover:ring-blue-400 hover:scale-105">
+                    <input type="radio" name="plan" value="monthly" class="absolute top-4 right-4" required>
+                    <div class="space-y-2">
+                        <h3 class="text-xl font-bold text-blue-600">💼 اشتراك شهري</h3>
+                        <p class="text-gray-600">إدارة كاملة لمدة 30 يوم.</p>
+                        <p class="text-lg font-semibold text-green-600">1500 جنيه</p>
+                    </div>
+                </label>
+
+                <!-- الخطة ربع السنوية -->
+                <label
+                    class="relative bg-white border border-blue-100 rounded-2xl shadow-md p-6 cursor-pointer transition hover:ring-2 hover:ring-blue-400 hover:scale-105">
+                    <input type="radio" name="plan" value="3months" class="absolute top-4 right-4" required>
+                    <div class="space-y-2">
+                        <h3 class="text-xl font-bold text-blue-600">🏢 اشتراك 3 شهور</h3>
+                        <p class="text-gray-600">راحة واستقرار إداري لربع سنة.</p>
+                        <p class="text-lg font-semibold text-green-600">4000 جنيه</p>
+                    </div>
+                </label>
+            </div>
+
+            <div class="text-center mt-10">
+                <button type="submit"
+                    class="bg-blue-500 hover:bg-blue-600 text-white px-8 py-3 text-lg font-semibold rounded-lg transition">
+                    المتابعة ↪️
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

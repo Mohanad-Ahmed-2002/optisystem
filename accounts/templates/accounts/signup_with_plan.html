@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% block title %}تسجيل حساب جديد{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center px-4 py-10 ">
+    <div class="w-full max-w-xl bg-white rounded-3xl shadow-lg ring-1 ring-blue-100 transition duration-300 p-6 sm:p-8">
+
+        <!-- العنوان -->
+        <div class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-extrabold text-blue-600 mb-2">📝 إنشاء حساب جديد</h1>
+            <p class="text-sm text-gray-600">سجل بياناتك لتفعيل الاشتراك والبدء في إدارة المحل</p>
+        </div>
+
+        <!-- الرسائل -->
+        {% if messages %}
+        <div class="mb-4 space-y-2">
+            {% for message in messages %}
+            <div
+                class="text-sm px-4 py-2 rounded text-white {% if message.tags == 'error' %}bg-red-500{% else %}bg-green-500{% endif %}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- الفورم -->
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+
+            <div>
+                <label for="{{ form.username.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">اسم
+                    المستخدم</label>
+                {{ form.username }}
+                {% for error in form.username.errors %}
+                <p class="text-xs text-red-500 mt-1">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+            <div>
+                <label for="{{ form.shop_name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                    اسم المحل
+                </label>
+                {{ form.shop_name }}
+                {% for error in form.shop_name.errors %}
+                <p class="text-xs text-red-500 mt-1">{{ error }}</p>
+                {% endfor %}
+            </div>
+            
+
+            <div>
+                <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">البريد
+                    الإلكتروني</label>
+                {{ form.email }}
+                {% for error in form.email.errors %}
+                <p class="text-xs text-red-500 mt-1">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+            <div>
+                <label for="{{ form.password1.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">كلمة
+                    المرور</label>
+                {{ form.password1 }}
+                {% for error in form.password1.errors %}
+                <p class="text-xs text-red-500 mt-1">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+            <div>
+                <label for="{{ form.password2.id_for_label }}"
+                    class="block text-sm font-medium text-gray-700 mb-1">تأكيد كلمة المرور</label>
+                {{ form.password2 }}
+                {% for error in form.password2.errors %}
+                <p class="text-xs text-red-500 mt-1">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+            <button type="submit"
+                class="w-full py-3 text-base rounded-lg text-white font-semibold bg-blue-500 hover:bg-blue-600 transition hover:scale-105">
+                ✅ إنشاء الحساب وتفعيل الاشتراك
+            </button>
+        </form>
+
+        <!-- رابط تسجيل الدخول -->
+        <div class="text-center mt-6">
+            <a href="{% url 'login' %}" class="text-sm text-blue-700 hover:underline">
+                لديك حساب بالفعل؟ <span class="font-medium">سجّل الدخول</span>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

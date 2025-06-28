@@ -2,70 +2,55 @@
 {% block title %}قائمة المصروفات{% endblock %}
 
 {% block content %}
-<div class="max-w-6xl mx-auto mt-10 bg-white p-6 rounded-2xl shadow">
-    <h2 class="text-2xl font-bold mb-6 text-gray-800 text-center">💸 قائمة المصروفات</h2>
+<div class="max-w-6xl mx-auto bg-white p-6 mt-4 rounded-3xl shadow-xl border border-gray-200">
+    <h1 class="text-2xl font-extrabold text-center text-[#2d2a32] mb-6">💸 قائمة المصروفات</h1>
+
+    <form method="get" class="mb-4 text-center">
+        <input type="text" name="search" placeholder="🔍 ابحث عن مصروف..." value="{{ search_query }}"
+            class="border border-gray-300 rounded-xl px-4 py-2 w-1/2 text-sm">
+        <button type="submit" class="ml-2 bg-[#007f5f] text-white px-4 py-2 rounded-xl hover:bg-[#009f75] text-sm font-bold">بحث</button>
+    </form>
+
+    <div class="mb-6 flex flex-col md:flex-row justify-between items-center gap-4">
+        <a href="{% url 'add_expense' %}"
+            class="bg-[#9a031e] hover:bg-[#b30d2f] text-white px-5 py-2 rounded-xl shadow text-sm font-semibold">
+            ➕ إضافة مصروف
+        </a>
+    </div>
 
     <div class="overflow-x-auto">
-        <table class="w-full table-auto text-center border-separate border-spacing-y-2">
+        <table class="w-full table-auto text-sm text-center border-separate border-spacing-y-2">
             <thead class="bg-gray-100 text-gray-700">
                 <tr>
-                    <th class="px-4 py-3">الاسم</th>
-                    <th class="px-4 py-3">الفئة</th>
-                    <th class="px-4 py-3">المبلغ</th>
-                    <th class="px-4 py-3">التاريخ</th>
-                    <th class="px-4 py-3">الإجراء</th>
+                    <th class="py-2 px-4">📅 التاريخ</th>
+                    <th class="py-2 px-4">📄 البيان</th>
+                    <th class="py-2 px-4">💰 المبلغ</th>
+                    <th class="py-2 px-4">📝 ملاحظات</th>
+                    <th class="py-2 px-4">🗑️ حذف</th>
                 </tr>
             </thead>
             <tbody>
-                {% for exp in expenses %}
-                <tr class="bg-gray-50 hover:bg-gray-100 transition">
-                    <td class="px-4 py-2">{{ exp.title }}</td>
-                    <td class="px-4 py-2">{{ exp.get_category_display }}</td>
-                    <td class="px-4 py-2 text-red-600 font-semibold">{{ exp.amount }}</td>
-                    <td class="px-4 py-2">{{ exp.date }}</td>
-                    <td class="px-4 py-2">
-                        <form action="{% url 'delete_expense' exp.id %}" method="post"
-                            onsubmit="return confirm('هل أنت متأكد أنك تريد حذف هذا المصروف؟');">
+                {% for expense in expenses %}
+                <tr class="bg-white hover:bg-gray-50 transition shadow rounded-xl">
+                    <td class="py-2 px-4">{{ expense.date|date:"Y-m-d" }}</td>
+                    <td class="py-2 px-4">{{ expense.title }}</td>
+                    <td class="py-2 px-4 font-bold text-[#9a031e]">{{ expense.amount }}</td>
+                    <td class="py-2 px-4">{{ expense.notes|default:"—" }}</td>
+                    <td class="py-2 px-4">
+                        <form action="{% url 'delete_expense' expense.id %}" method="POST"
+                            onsubmit="return confirm('هل أنت متأكد من حذف هذا المصروف؟')">
                             {% csrf_token %}
-                            <button type="submit"
-                                class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm shadow">
-                                🗑️ حذف
-                            </button>
+                            <button type="submit" class="text-red-600 hover:text-red-800 font-bold text-sm">حذف</button>
                         </form>
                     </td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="5" class="text-gray-500 py-4">لا توجد مصروفات.</td>
+                    <td colspan="5" class="py-4 text-gray-500">لا توجد مصروفات.</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
-    </div>
-
-    <!-- الإجمالي -->
-    <div class="mt-6 text-lg font-bold text-gray-800 text-center md:text-right">
-        🧾 الإجمالي: <span class="text-green-700">{{ total_expenses }}</span> جنيه
-    </div>
-
-    <!-- Pagination -->
-    <div class="flex justify-center items-center mt-6 gap-2">
-        {% if expenses.has_previous %}
-        <a href="?page=1" class="px-3 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">الأولى</a>
-        <a href="?page={{ expenses.previous_page_number }}"
-            class="px-3 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">السابق</a>
-        {% endif %}
-
-        <span class="px-4 py-1 bg-blue-600 text-white rounded">
-            صفحة {{ expenses.number }} من {{ expenses.paginator.num_pages }}
-        </span>
-
-        {% if expenses.has_next %}
-        <a href="?page={{ expenses.next_page_number }}"
-            class="px-3 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">التالي</a>
-        <a href="?page={{ expenses.paginator.num_pages }}"
-            class="px-3 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">الأخيرة</a>
-        {% endif %}
     </div>
 </div>
 {% endblock %}

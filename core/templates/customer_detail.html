@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% block title %}تفاصيل العميل{% endblock %}
+{% block content %}
+<div class="max-w-6xl mx-auto mt-6 bg-white p-6 rounded-2xl shadow-md border border-gray-200">
+  <h2 class="text-xl font-extrabold text-center text-[#2d2a32] mb-6">👤 تفاصيل العميل</h2>
+
+  <div class="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+    <div><strong>الاسم:</strong> {{ customer.name }}</div>
+    <div><strong>رقم الهاتف:</strong> {{ customer.phone }}</div>
+    <div><strong>العنوان:</strong> {{ customer.address }}</div>
+    <div><strong>ملاحظات:</strong> {{ customer.notes }}</div>
+  </div>
+
+
+  <!-- إجمالي الفواتير والمدفوع والمتبقي -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 text-sm text-center font-semibold">
+    <div class="bg-gray-100 p-4 rounded-xl shadow">
+      💵 إجمالي الفواتير<br><span class="text-lg text-[#2d2a32]">{{ total_invoice }}</span>
+    </div>
+    <div class="bg-gray-100 p-4 rounded-xl shadow">
+      ✅ إجمالي المدفوع<br><span class="text-lg text-green-600">{{ total_paid }}</span>
+    </div>
+    <div class="bg-gray-100 p-4 rounded-xl shadow">
+      ❗ المتبقي الكلي<br><span class="text-lg text-red-600">{{ total_remaining }}</span>
+    </div>
+  </div>
+
+  <h3 class="text-lg font-bold mb-2">🧾 الفواتير</h3>
+  <div class="overflow-x-auto mb-6">
+    <table class="min-w-full text-sm border text-center">
+      <thead class="bg-gray-100">
+        <tr>
+          <th class="border p-2">رقم</th>
+          <th class="border p-2">التاريخ</th>
+          <th class="border p-2">الإجمالي</th>
+          <th class="border p-2">المدفوع</th>
+          <th class="border p-2">المتبقي</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for invoice in invoices %}
+        <tr class="hover:bg-gray-50">
+          <td class="border p-2">{{ invoice.id }}</td>
+          <td class="border p-2">{{ invoice.date|date:"Y-m-d" }}</td>
+          <td class="border p-2">{{ invoice.total }}</td>
+          <td class="border p-2">{{ invoice.paid }}</td>
+          <td class="border p-2">{{ invoice.remaining }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="5" class="text-center p-4">لا توجد فواتير</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <h3 class="text-lg font-bold mb-2">💰 المدفوعات</h3>
+  <div class="overflow-x-auto">
+    <table class="min-w-full text-sm border text-center">
+      <thead class="bg-gray-100">
+        <tr>
+          <th class="border p-2">التاريخ</th>
+          <th class="border p-2">المبلغ</th>
+          <th class="border p-2">ملاحظات</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for payment in payments %}
+        <tr class="hover:bg-gray-50">
+          <td class="border p-2">{{ payment.date|date:"Y-m-d" }}</td>
+          <td class="border p-2">{{ payment.amount }}</td>
+          <td class="border p-2">{{ payment.notes }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="3" class="text-center p-4">لا توجد مدفوعات</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  
+</div>
+{% endblock %}

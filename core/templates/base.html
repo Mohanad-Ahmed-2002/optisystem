@@ -1,76 +1,152 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" x-data="{ sidebarOpen: false }">
 
 <head>
     <meta charset="UTF-8">
     <title>{% block title %}OPTI-MANAGE{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+        }
+    </style>
 </head>
 
-<body class="bg-gray-50 text-gray-800 font-sans flex flex-col min-h-screen">
+<body class="bg-[#f9f9f9] text-gray-800 min-h-screen leading-relaxed tracking-wide">
 
-    <!-- ✅ HEADER -->
-    <header class="bg-gray-900 text-white shadow sticky top-0 z-50">
-        <div class="container mx-auto flex justify-between items-center p-4">
-            <a href="{% url 'dashboard' %}"
-                class="text-2xl font-bold tracking-wide text-red-600 hover:text-white transition">
-                OPTI-MANAGE
-            </a>
-            <nav class="hidden md:flex space-x-3 space-x-reverse gap-2 text-lg font-semibold">
-                <a href="{% url 'dashboard' %}" class="hover:text-yellow-400 transition">🏠 لوحة التحكم</a>
-                <a href="{% url 'invoice_list' %}" class="hover:text-yellow-400 transition">🧾 الفواتير</a>
-                <a href="{% url 'expenses_list' %}" class="hover:text-yellow-400 transition">💸 المصروفات</a>
-                <a href="{% url 'sales_report' %}" class="hover:text-yellow-400 transition">📊 التقارير</a>
-                <a href="{% url 'product_list' %}" class="hover:text-yellow-400 transition">📦 المنتجات</a>
-
-                {% if request.user.is_authenticated %}
-                {% if request.user.role == 'manager' %}
-                <a href="{% url 'manage_users' %}" class="hover:text-yellow-400 transition">👥 المستخدمين</a>
-                <a href="{% url 'manage_months' %}" class="hover:text-yellow-400 transition">📅 ادارة الشهور</a>
-
-                {% endif %}
-                <a href="{% url 'logout' %}" class="hover:text-red-400 transition">🚪 تسجيل الخروج</a>
-                {% else %}
-                <a href="{% url 'login' %}" class="hover:text-green-400 transition">🔐 تسجيل الدخول</a>
-                {% endif %}
-            </nav>
-        </div>
+    <!-- Mobile Header -->
+    <header class="md:hidden flex items-center justify-between bg-blue-950 text-white p-4 rounded-b-xl shadow-md">
+        <h1 class="text-lg font-bold">OPTI-MANAGE</h1>
+        <button @click="sidebarOpen = true">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+        </button>
     </header>
 
-    <!-- ✅ MAIN CONTENT -->
-    <main class="container mx-auto px-4 py-6 flex-grow">
-        {% for message in messages %}
-        <div id="message-{{ forloop.counter }}" class="mb-4 p-4 rounded-lg text-white
-                    {% if message.tags == 'success' %}bg-green-500
-                    {% elif message.tags == 'error' %}bg-red-500
-                    {% else %}bg-blue-500{% endif %}">
-            {{ message }}
-        </div>
-        {% endfor %}
+    <!-- Sidebar (Mobile Drawer) -->
+    <div class="fixed inset-0 z-50 md:hidden" x-show="sidebarOpen" style="display: none;">
+        <div class="absolute inset-0 bg-black bg-opacity-30" @click="sidebarOpen = false"></div>
+        <aside
+            class="absolute right-0 top-0 w-64 h-full bg-blue-950/95 text-white p-6 space-y-4 transition duration-300 rounded-l-2xl shadow-xl"
+            x-show="sidebarOpen" @click.away="sidebarOpen = false">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-extrabold text-blue-300">OPTI-MANAGE</h2>
+                <button @click="sidebarOpen = false" class="text-white">✕</button>
+            </div>
+            <nav class="space-y-2 text-sm">
+                <a href="{% url 'dashboard' %}" class="block py-2 px-4 rounded-lg hover:bg-gray-100 hover:text-black">🏠
+                    لوحة التحكم</a>
+                <a href="{% url 'invoice_list' %}"
+                    class="block py-2 px-4 rounded-lg hover:bg-gray-100 hover:text-black">🧾 المبيعـات</a>
+                <a href="{% url 'expenses_list' %}"
+                    class="block py-2 px-4 rounded-lg hover:bg-gray-100 hover:text-black">💸 المصروفات</a>
+                <a href="{% url 'sales_report' %}"
+                    class="block py-2 px-4 rounded-lg hover:bg-gray-100 hover:text-black">📊 التقارير</a>
+                <a href="{% url 'product_list' %}"
+                    class="block py-2 px-4 rounded-lg hover:bg-gray-100 hover:text-black">📦 المنتجات</a>
+                <a href="{% url 'lens_list' %}" class="block py-2 px-4 rounded-lg hover:bg-gray-100 hover:text-black">🟢
+                    العدسات</a>
+                {% if request.user.is_authenticated and request.user.role == 'manager' %}
+                <a href="{% url 'manage_users' %}"
+                    class="block py-2 px-4 rounded-lg hover:bg-gray-100 hover:text-black">👥 المستخدمين</a>
+                <a href="{% url 'manage_months' %}"
+                    class="block py-2 px-4 rounded-lg hover:bg-gray-100 hover:text-black">📅 إدارة الشهور</a>
+                {% endif %}
+                {% if request.user.is_authenticated %}
+                <a href="{% url 'logout' %}" class="block py-2 px-4 rounded-lg hover:bg-red-100 text-red-600">🚪 تسجيل
+                    الخروج</a>
+                {% else %}
+                <a href="{% url 'login' %}" class="block py-2 px-4 rounded-lg hover:bg-green-100 text-green-700">🔐
+                    تسجيل الدخول</a>
+                {% endif %}
+            </nav>
+        </aside>
+    </div>
 
-        {% block content %}{% endblock %}
-    </main>
+    <div class="flex">
+        <!-- Sidebar (Desktop) -->
+        <aside class="hidden md:block w-64 bg-blue-950 text-white p-6 space-y-4 h-screen shadow-lg rounded-e-3xl">
+            <div class="text-3xl font-extrabold text-blue-300 mb-6">OPTI-MANAGE</div>
+            <nav class="space-y-2 text-sm">
+                <a href="{% url 'dashboard' %}" class="block py-2 px-4 rounded-lg hover:bg-gray-100 hover:text-black">🏠
+                    لوحة التحكم</a>
+                <a href="{% url 'invoice_list' %}"
+                    class="block py-2 px-4 rounded-lg hover:bg-gray-100 hover:text-black">🧾 المبيعــات</a>
+                <a href="{% url 'expenses_list' %}"
+                    class="block py-2 px-4 rounded-lg hover:bg-gray-100 hover:text-black">💸 المصروفات</a>
+                
+                <a href="{% url 'customer_list' %}"
+                    class="block py-2 px-4 rounded-lg hover:bg-gray-100 hover:text-black">👥 العملاء </a>
 
-    <!-- ✅ FIXED FOOTER -->
-    <footer class="bg-gray-800 text-gray-200 text-center py-4 mt-auto">
-        <p>  OPTI-MANAGE | Created by : <strong class="text-red-400">Eng. Mohanad Ahmed
-                Khalil</strong></p>
-    </footer>
+                <a href="{% url 'sales_report' %}"
+                    class="block py-2 px-4 rounded-lg hover:bg-gray-100 hover:text-black">📊 التقارير</a>
+                <a href="{% url 'product_list' %}"
+                    class="block py-2 px-4 rounded-lg hover:bg-gray-100 hover:text-black">📦 المنتجات</a>
+                <a href="{% url 'lens_list' %}" class="block py-2 px-4 rounded-lg hover:bg-gray-100 hover:text-black">🟢
+                    العدسات</a>
+                {% if request.user.is_authenticated and request.user.role == 'manager' %}
+                <a href="{% url 'manage_users' %}"
+                    class="block py-2 px-4 rounded-lg hover:bg-gray-100 hover:text-black">👥 المستخدمين</a>
+                <a href="{% url 'manage_months' %}"
+                    class="block py-2 px-4 rounded-lg hover:bg-gray-100 hover:text-black">📅 إدارة الشهور</a>
+                {% endif %}
+                {% if request.user.is_authenticated %}
+                <a href="{% url 'logout' %}" class="block py-2 px-4 rounded-lg hover:bg-red-100 text-red-600">🚪 تسجيل
+                    الخروج</a>
+                {% else %}
+                <a href="{% url 'login' %}" class="block py-2 px-4 rounded-lg hover:bg-green-100 text-green-700">🔐
+                    تسجيل الدخول</a>
+                {% endif %}
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-4 md:p-6 w-full max-w-7xl lg:pr-12 mx-auto">
+
+            {% if subscription_days_left %}
+            <div class="mb-4 p-4 rounded-xl bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 shadow-md text-center">
+                ⏳ تنبيه: يتبقى {{ subscription_days_left }} يوم على انتهاء اشتراكك.
+                يرجى التواصل مع الدعم لتجديد الاشتراك في الوقت المناسب.
+            </div>
+            {% endif %}
+
+
+            {% for message in messages %}
+            <div id="message-{{ forloop.counter }}" class="mb-4 p-4 rounded-xl text-white shadow-md border-r-4
+              {% if message.tags == 'success' %}bg-green-500 border-green-700
+              {% elif message.tags == 'error' %}bg-red-500 border-red-700
+              {% else %}bg-blue-500 border-blue-700{% endif %}">
+                {{ message }}
+            </div>
+            {% endfor %}
+
+            {% block content %}{% endblock %}
+
+            <footer
+                class="text-sm text-gray-500 text-center mt-16 py-4 border-t border-gray-200 bg-white shadow-inner rounded-t-xl">
+                <p>2025&copy; <span class="font-extrabold text-blue-950 tracking-wide">OPTI-MANAGE</span>. جميع الحقوق
+                    محفوظة.</p>
+                <p class="mt-1 text-gray-600">تم التطوير بواسطة <span class="font-medium text-blue-950">م. مهند أحمد
+                        خليل</span></p>
+            </footer>
+        </main>
+    </div>
 
     <script>
         setTimeout(() => {
             document.querySelectorAll('[id^="message-"]').forEach(el => {
                 el.style.transition = "opacity 0.5s ease";
                 el.style.opacity = "0";
-                setTimeout(() => el.remove(), 500);  // يمسح العنصر بعد التلاشي
+                setTimeout(() => el.remove(), 500);
             });
         }, 4000);
     </script>
-    
-    
 
 </body>
 
 </html>
-

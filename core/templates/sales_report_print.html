@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ar">
+
+<head>
+    <meta charset="UTF-8">
+    <title>تقرير المبيعات - للطباعة</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            direction: rtl;
+            background: white;
+            color: #000;
+            margin: 2rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        th,
+        td {
+            border: 1px solid #000;
+            padding: 0.5rem;
+            text-align: center;
+        }
+
+        th {
+            background: #f0f0f0;
+        }
+
+        h1,
+        h3 {
+            text-align: center;
+        }
+
+        @media print {
+            button {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>📋 تقرير المبيعات</h1>
+    <h3>التاريخ: {{ now|date:"Y-m-d H:i" }}</h3>
+
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>العميل</th>
+                <th>الإجمالي</th>
+                <th>المدفوع</th>
+                <th>المتبقي</th>
+                <th>تاريخ الفاتورة</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for invoice in invoices %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ invoice.customer.name }}</td>
+                <td>{{ invoice.total }}</td>
+                <td>{{ invoice.amount_paid }}</td>
+                <td>{{ invoice.remaining_amount }}</td>
+                <td>{{ invoice.created_at|date:"Y-m-d" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6">لا توجد بيانات.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h3>📊 الإجمالي الكلي: {{ total }}</h3>
+
+    <div style="text-align:center; margin-top:2rem;">
+        <button onclick="window.print()">🖨️ طباعة التقرير</button>
+    </div>
+
+</body>
+
+</html>

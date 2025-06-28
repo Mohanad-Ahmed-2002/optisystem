@@ -16,6 +16,7 @@ defusedxml==0.7.1
 dj-database-url==3.0.0
 Django==5.2.1
 fonttools==4.58.0
+gunicorn==23.0.0
 html5lib==1.1
 idna==3.10
 iniconfig==2.1.0

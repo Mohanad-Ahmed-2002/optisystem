@@ -50,7 +50,7 @@ def subscription_required(view_func):
 
         # ✅ التحقق من الموافقة
         # ✅ شرط التحقق فقط للمدير
-        if user.role == 'manager' and not user.is_approved:
+        if user.is_authenticated and user.role == 'manager' and not user.is_approved:
             messages.warning(request, "حسابك قيد المراجعة، سيتم تفعيله بعد موافقة الإدارة.")
             return redirect('waiting_approval')
 

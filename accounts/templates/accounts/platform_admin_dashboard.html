@@ -51,15 +51,25 @@
                         <a href="{% url 'approve_user' user.id %}"
                             class="bg-yellow-500 text-white text-xs py-1 px-2 rounded">قبول</a>
                         {% endif %}
-                        {% if user.is_active %}
-                        <a href="{% url 'deactivate_user' user.id %}"
-                            class="bg-red-600 text-white text-xs py-1 px-2 rounded">إيقاف</a>
-                        {% else %}
-                        <a href="{% url 'activate_user' user.id %}"
-                            class="bg-green-600 text-white text-xs py-1 px-2 rounded">تفعيل</a>
-                        {% endif %}
-                        <a href="{% url 'delete_user' user.id %}" onclick="return confirm('هل تريد حذف المستخدم؟')"
-                            class="bg-gray-600 text-white text-xs py-1 px-2 rounded">🗑️ حذف</a>
+
+                        {% if user.days_left != None and user.days_left <= 0 %} <span
+                            class="text-red-600 block text-xs">انتهى الاشتراك</span>
+                            {% if user.is_active %}
+                            <a href="{% url 'deactivate_user' user.id %}"
+                                class="bg-red-600 text-white text-xs py-1 px-2 rounded">إيقاف الحساب</a>
+                            {% endif %}
+                            {% else %}
+                            {% if user.is_active %}
+                            <a href="{% url 'deactivate_user' user.id %}"
+                                class="bg-red-600 text-white text-xs py-1 px-2 rounded">إيقاف</a>
+                            {% else %}
+                            <a href="{% url 'activate_user' user.id %}"
+                                class="bg-green-600 text-white text-xs py-1 px-2 rounded">تفعيل</a>
+                            {% endif %}
+                            {% endif %}
+
+                            <a href="{% url 'delete_user' user.id %}" onclick="return confirm('هل تريد حذف المستخدم؟')"
+                                class="bg-gray-600 text-white text-xs py-1 px-2 rounded">🗑️ حذف</a>
                     </td>
                 </tr>
                 {% empty %}

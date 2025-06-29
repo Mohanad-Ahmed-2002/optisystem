@@ -30,9 +30,7 @@ class SubscriptionMiddleware:
                     print("🚫 مفيش اشتراك مربوط بصاحب المحل.")
                     return redirect('choose_plan')
 
-                if not subscription.is_active():
-                    print("⚠️ الاشتراك موجود لكنه غير فعّال.")
-                    return redirect('choose_plan')
+
 
                 print("✅ اشتراك صاحب المحل فعّال. السماح بالدخول.")
         

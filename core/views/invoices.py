@@ -10,10 +10,11 @@ from django.core.exceptions import PermissionDenied
 from django.db import IntegrityError
 import time
 from django.core.exceptions import ObjectDoesNotExist
+from django.http import JsonResponse
 
 from ..models import Invoice, InvoiceItem,Lens, Product, Customer, MonthlySession, InvoicePayment
 from ..forms import CustomerForm
-from ..utils import render_to_pdf, is_manager, is_employee, is_manager_or_employee,subscription_required,block_superuser
+from ..utils import  is_manager, is_employee, is_manager_or_employee,subscription_required,block_superuser
 
 
 @block_superuser
@@ -297,34 +298,26 @@ def invoice_detail(request, invoice_id):
 @user_passes_test(is_manager_or_employee)
 def print_invoice(request, invoice_id):
     invoice = get_object_or_404(
-        Invoice.objects.select_related('customer'),
-        id=invoice_id,
-        shop=request.user.shop
-    )
-    items = invoice.items.select_related('product', 'lens')  # ✅ أضف العدسة
-    for item in items:
-        item.line_total = item.price * item.quantity
-    return render(request, 'print_invoice.html', {
-        'invoice': invoice,
-        'items': items
-    })
-
-@user_passes_test(is_manager_or_employee)
-def invoice_pdf(request, invoice_id):
-    invoice = get_object_or_404(
-        Invoice.objects.select_related('customer'),
+        Invoice.objects.select_related('customer', 'shop'),
         id=invoice_id,
         shop=request.user.shop
     )
     items = invoice.items.select_related('product', 'lens')
     for item in items:
         item.line_total = item.price * item.quantity
+
+    total_before_discount = invoice.total + (invoice.discount or 0)
+    remaining = invoice.total - invoice.amount_paid
+
     context = {
         'invoice': invoice,
         'items': items,
-        'shop': request.user.shop  # ✅ تأكد دي موجودة
+        'shop': invoice.shop,
+        'total_before_discount': total_before_discount,
+        'remaining': remaining,
+
     }
-    return render_to_pdf('invoice_pdf_template.html', context)
+    return render(request, 'print_invoice.html', context)
 
 
 @user_passes_test(is_manager)
@@ -348,3 +341,19 @@ def delete_invoice(request, invoice_id):
 
     return render(request, 'confirm_delete_invoice.html', {'invoice': invoice})
 
+def get_product_by_barcode(request):
+    barcode = request.GET.get('barcode', '')
+    if not barcode:
+        return JsonResponse({'success': False, 'error': 'لا يوجد باركود'})
+
+    try:
+        product = Product.objects.get(barcode=barcode)
+        return JsonResponse({
+            'success': True,
+            'id': product.id,
+            'name': product.name,
+            'sell_price': float(product.sell_price),
+            'quantity': product.quantity
+        })
+    except Product.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'المنتج غير موجود'})

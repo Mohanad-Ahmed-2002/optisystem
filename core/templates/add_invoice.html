@@ -2,203 +2,215 @@
 {% block title %}إضافة فاتورة{% endblock %}
 
 {% block content %}
-<div class="max-w-5xl mx-auto bg-white p-10 rounded-3xl shadow-xl">
-    <h2 class="text-3xl font-extrabold text-center text-[#2d2a32] mb-10">➕ إضافة فاتورة جديدة</h2>
+<form method="POST">
+    {% csrf_token %}
 
-    <form method="POST" class="space-y-8">
-        {% csrf_token %}
+    <div class="max-w-5xl mx-auto bg-white p-8 rounded-3xl shadow-lg space-y-8">
 
-        <!-- اختيار العميل -->
+        <h2 class="text-3xl font-extrabold text-center text-[#2d2a32]">➕ إضافة فاتورة جديدة</h2>
+
+        <!-- بيانات العميل -->
+        <div class="bg-gray-50 p-6 rounded-xl border space-y-4">
+            <h3 class="text-lg font-semibold text-blue-800 mb-2">👤 بيانات العميل</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block font-medium mb-1">اختر العميل</label>
+                    <select name="customer" id="customerSelect"
+                        class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-400"
+                        onchange="toggleNewCustomer(this)">
+                        <option value="">-- اختر --</option>
+                        {% for c in customers %}
+                        <option value="{{ c.id }}">{{ c.name }}</option>
+                        {% endfor %}
+                        <option value="new">➕ عميل جديد</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-medium mb-1">نوع الفاتورة</label>
+                    <select name="sale_type"
+                        class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-400" required>
+                        <option value="قطاعي">قطاعي</option>
+                        <option value="جملة">جملة</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="newCustomerForm" class="mt-6 bg-white border p-4 rounded-lg hidden">
+                <h4 class="text-blue-600 font-semibold mb-3">➕ بيانات العميل الجديد</h4>
+                {{ customer_form.as_p }}
+            </div>
+        </div>
+
+        <!-- معلومات الفاتورة -->
+        <div class="bg-gray-50 p-6 rounded-xl border space-y-4">
+            <h3 class="text-lg font-semibold text-blue-800 mb-2">💳 الدفع والخصم</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                    <label class="block font-medium mb-1">طريقة الدفع</label>
+                    <select name="payment_method"
+                        class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-400">
+                        <option value="نقدًا">نقدًا</option>
+                        <option value="فيزا">فيزا</option>
+                        <option value="آجل">آجل</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-medium mb-1">الخصم</label>
+                    <input type="number" step="0.01" name="discount"
+                        class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-400">
+                </div>
+                <div>
+                    <label class="block font-medium mb-1">المدفوع</label>
+                    <input type="number" step="0.01" name="amount_paid"
+                        class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-400">
+                </div>
+            </div>
+        </div>
+
+
+
+        
+        <!-- الباركود -->
         <div>
-            <label for="customerSelect" class="block font-semibold text-gray-700 mb-2">👤 اختر العميل</label>
-            <select name="customer" id="customerSelect" class="w-full border border-gray-300 p-3 rounded-xl"
-                onchange="toggleNewCustomer(this)">
-                <option value="">-- اختر --</option>
-                {% for c in customers %}
-                <option value="{{ c.id }}">{{ c.name }}</option>
-                {% endfor %}
-                <option value="new">➕ عميل جديد</option>
-            </select>
-        </div>
-
-        <!-- نموذج العميل الجديد -->
-        <div id="newCustomerForm" class="space-y-4 hidden bg-gray-50 border p-5 rounded-xl">
-            <h3 class="font-bold text-[#007f5f]">معلومات العميل الجديد</h3>
-            {{ customer_form.as_p }}
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-                <label class="block font-semibold text-gray-700 mb-2">🧾 نوع الفاتورة</label>
-                <select name="sale_type" class="w-full border border-gray-300 p-3 rounded-xl" required>
-                    <option value="قطاعي">قطاعي</option>
-                    <option value="جملة">جملة</option>
-                </select>
-            </div>
-            <!-- عنصر الدفع الموجود بالفعل -->
-        </div>
-
-
-        <!-- الدفع والخصم والمدفوع -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div>
-                <label class="block font-semibold text-gray-700 mb-2">💳 طريقة الدفع</label>
-                <select name="payment_method" class="w-full border border-gray-300 p-3 rounded-xl">
-                    <option value="نقدًا">نقدًا</option>
-                    <option value="فيزا">فيزا</option>
-                    <option value="آجل">آجل</option>
-                </select>
-            </div>
-            <div>
-                <label class="block font-semibold text-gray-700 mb-2">خصم</label>
-                <input type="number" step="0.01" name="discount" class="w-full border border-gray-300 p-3 rounded-xl">
-            </div>
-            <div>
-                <label class="block font-semibold text-gray-700 mb-2">💰 المدفوع</label>
-                <input type="number" step="0.01" name="amount_paid" class="w-full border border-gray-300 p-3 rounded-xl"
-                    value="0.00">
-            </div>
+            <label for="barcodeInput" class="block font-semibold text-gray-700 mb-2">📡 الباركود</label>
+            <input type="text" id="barcodeInput" placeholder="اكتب الباركود واضغط Enter"
+                class="w-full border border-blue-300 p-3 rounded-xl shadow-sm focus:outline-none">
         </div>
 
         <!-- المنتجات -->
-        <div>
-            <h3 class="text-xl font-bold text-gray-800 mb-4">📦 المنتجات</h3>
+        <div class="bg-gray-50 p-6 rounded-xl border space-y-4">
+            <h3 class="text-lg font-semibold text-blue-800 mb-2">📦 المنتجات</h3>
             <div id="products-area" class="space-y-4">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end product-item">
-                    <select name="product_ids" class="border border-gray-300 p-3 rounded-xl w-full">
+                    <select name="product_ids"
+                        class="border border-gray-300 p-3 rounded-lg w-full focus:ring-2 focus:ring-blue-400">
                         {% for product in products %}
                         <option value="{{ product.id }}">{{ product.name }} ({{ product.sell_price }} ج.م)</option>
                         {% endfor %}
                     </select>
-
-                    <input type="number" name="quantities" class="border border-gray-300 p-3 rounded-xl w-full"
+                    <input type="number" name="quantities"
+                        class="border border-gray-300 p-3 rounded-lg w-full focus:ring-2 focus:ring-blue-400"
                         placeholder="الكمية">
-
                     <button type="button" onclick="removeProduct(this)"
-                        class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl text-sm">
-                        🗑️ حذف
-                    </button>
+                        class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm">🗑️ حذف</button>
                 </div>
             </div>
-
-            <div class="mt-6 text-center">
+            <div class="text-center">
                 <button type="button" onclick="addProduct()"
-                    class="bg-[#2d2a32] hover:bg-[#3a3840] text-white px-6 py-2 rounded-xl text-sm font-semibold">
-                    ➕ إضافة منتج آخر
-                </button>
+                    class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg text-sm font-semibold">➕ إضافة
+                    منتج
+                    آخر</button>
             </div>
         </div>
 
         <!-- العدسات -->
-        <div>
-            <h3 class="text-xl font-bold text-gray-800 mb-4">🕶️ العدسات</h3>
+        <div class="bg-gray-50 p-6 rounded-xl border space-y-4">
+            <h3 class="text-lg font-semibold text-blue-800 mb-2">🕶️ العدسات</h3>
             <div id="lenses-area" class="space-y-4">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end lens-item">
-                    <select name="lens_ids" class="border border-gray-300 p-3 rounded-xl w-full">
+                    <select name="lens_ids"
+                        class="border border-gray-300 p-3 rounded-lg w-full focus:ring-2 focus:ring-blue-400">
                         {% for lens in lenses %}
                         <option value="{{ lens.id }}">{{ lens.name }} ({{ lens.sell_price }} ج.م)</option>
-
                         {% endfor %}
                     </select>
-
-                    <input type="number" name="lens_quantities" class="border border-gray-300 p-3 rounded-xl w-full"
+                    <input type="number" name="lens_quantities"
+                        class="border border-gray-300 p-3 rounded-lg w-full focus:ring-2 focus:ring-blue-400"
                         placeholder="الكمية">
-
                     <button type="button" onclick="removeLens(this)"
-                        class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl text-sm">
-                        🗑️ حذف
-                    </button>
+                        class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm">🗑️ حذف</button>
                 </div>
             </div>
-
-            <div class="mt-6 text-center">
+            <div class="text-center">
                 <button type="button" onclick="addLens()"
-                    class="bg-[#2d2a32] hover:bg-[#3a3840] text-white px-6 py-2 rounded-xl text-sm font-semibold">
-                    ➕ إضافة عدسة أخرى
-                </button>
+                    class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg text-sm font-semibold">➕ إضافة
+                    عدسة
+                    أخرى</button>
             </div>
         </div>
-
-        <script>
-            function addLens() {
-                const lensesArea = document.getElementById('lenses-area');
-                const firstLensItem = lensesArea.querySelector('.lens-item');
-                const newLensItem = firstLensItem.cloneNode(true);
-
-                newLensItem.querySelector('select[name="lens_ids"]').value = '';
-                newLensItem.querySelector('input[name="lens_quantities"]').value = '';
-                newLensItem.querySelector('button[onclick="removeLens(this)"]').classList.remove('hidden');
-
-                lensesArea.appendChild(newLensItem);
-            }
-
-            function removeLens(button) {
-                const lensItem = button.closest('.lens-item');
-                if (document.querySelectorAll('.lens-item').length > 1) {
-                    lensItem.remove();
-                } else {
-                    alert('يجب أن تحتوي الفاتورة على عدسة واحدة على الأقل.');
-                }
-            }
-        </script>
-
 
         <!-- حفظ -->
         <div class="text-center pt-6">
             <button type="submit"
-                class="bg-[#007f5f] hover:bg-[#009f75] text-white font-bold py-3 px-10 rounded-xl text-lg shadow-lg">
+                class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-10 rounded-xl text-lg shadow-lg">
                 💾 حفظ الفاتورة
             </button>
         </div>
-    </form>
-</div>
+    </div>
+</form>
 
-<!-- ✅ سكربت الأصلي ثابت ومفعل -->
 <script>
     function toggleNewCustomer(select) {
-        const newCustomerForm = document.getElementById('newCustomerForm');
+        const form = document.getElementById('newCustomerForm');
         if (select.value === 'new') {
-            newCustomerForm.classList.remove('hidden');
-            newCustomerForm.querySelectorAll('input, select, textarea').forEach(field => {
-                if (field.name !== 'notes') {
-                    field.setAttribute('required', true);
-                }
+            form.classList.remove('hidden');
+            form.querySelectorAll('input, select, textarea').forEach(f => {
+                if (f.name !== 'notes') f.setAttribute('required', true);
             });
         } else {
-            newCustomerForm.classList.add('hidden');
-            newCustomerForm.querySelectorAll('input, select, textarea').forEach(field => {
-                field.removeAttribute('required');
+            form.classList.add('hidden');
+            form.querySelectorAll('input, select, textarea').forEach(f => {
+                f.removeAttribute('required');
             });
         }
     }
 
     function addProduct() {
-        const productsArea = document.getElementById('products-area');
-        const firstProductItem = productsArea.querySelector('.product-item');
-        const newProductItem = firstProductItem.cloneNode(true);
-
-        newProductItem.querySelector('select[name="product_ids"]').value = '';
-        newProductItem.querySelector('input[name="quantities"]').value = '';
-        newProductItem.querySelector('button[onclick="removeProduct(this)"]').classList.remove('hidden');
-
-        productsArea.appendChild(newProductItem);
+        const area = document.getElementById('products-area');
+        const item = area.querySelector('.product-item').cloneNode(true);
+        item.querySelector('select').value = '';
+        item.querySelector('input').value = '';
+        item.querySelector('button').classList.remove('hidden');
+        area.appendChild(item);
     }
 
-    function removeProduct(button) {
-        const productItem = button.closest('.product-item');
-        if (document.querySelectorAll('.product-item').length > 1) {
-            productItem.remove();
-        } else {
-            alert('يجب أن تحتوي الفاتورة على منتج واحد على الأقل.');
-        }
+    function removeProduct(btn) {
+        const item = btn.closest('.product-item');
+        if (document.querySelectorAll('.product-item').length > 1) item.remove();
+        else alert('يجب أن تحتوي الفاتورة على منتج واحد على الأقل.');
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
-        const customerSelect = document.getElementById('customerSelect');
-        toggleNewCustomer(customerSelect);
-        if (document.querySelectorAll('.product-item').length === 1) {
-            document.querySelector('.product-item button[onclick="removeProduct(this)"]').classList.add('hidden');
+    function addLens() {
+        const area = document.getElementById('lenses-area');
+        const item = area.querySelector('.lens-item').cloneNode(true);
+        item.querySelector('select').value = '';
+        item.querySelector('input').value = '';
+        item.querySelector('button').classList.remove('hidden');
+        area.appendChild(item);
+    }
+
+    function removeLens(btn) {
+        const item = btn.closest('.lens-item');
+        if (document.querySelectorAll('.lens-item').length > 1) item.remove();
+        else alert('يجب أن تحتوي الفاتورة على عدسة واحدة على الأقل.');
+    }
+
+    document.getElementById('barcodeInput').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const barcode = this.value;
+            fetch(`/get-product-by-barcode/?barcode=${barcode}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        const area = document.getElementById('products-area');
+                        const item = area.querySelector('.product-item').cloneNode(true);
+                        item.querySelector('select').value = data.id;
+                        item.querySelector('input').value = 1;
+                        item.querySelector('button').classList.remove('hidden');
+                        area.appendChild(item);
+                        this.value = '';
+                    } else {
+                        alert(data.error || 'حدث خطأ أثناء جلب المنتج');
+                    }
+                });
         }
     });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const select = document.getElementById('customerSelect');
+        toggleNewCustomer(select);
+    });
 </script>
+
 {% endblock %}

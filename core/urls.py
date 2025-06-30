@@ -12,7 +12,6 @@ urlpatterns = [
     path('invoices/<int:invoice_id>/', views.invoice_detail, name='invoice_detail'),
     path('invoices/<int:invoice_id>/print/', views.print_invoice, name='print_invoice'),
     path('invoices/<int:invoice_id>/delete/', views.delete_invoice, name='delete_invoice'),
-    path('invoice/<int:invoice_id>/pdf/', views.invoice_pdf, name='invoice_pdf'),
     path('invoices/<int:invoice_id>/add-payment/', views.add_payment, name='add_payment'),
     path('payments/<int:payment_id>/delete/', views.delete_payment, name='delete_payment'),
     
@@ -32,6 +31,8 @@ urlpatterns = [
     path('lenses/add/', lens.add_lens, name='add_lens'),
     path('lenses/edit/<int:lens_id>/', lens.edit_lens, name='edit_lens'),
     path('lenses/delete/<int:lens_id>/', lens.delete_lens, name='delete_lens'),
+    path('get-product-by-barcode/', views.get_product_by_barcode, name='get_product_by_barcode'),
+
 
 
     # المصاريف

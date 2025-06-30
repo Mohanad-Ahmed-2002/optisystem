@@ -1,139 +1,142 @@
-{% load custom_filters %}
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 
 <head>
     <meta charset="UTF-8">
-    <title>طباعة الفاتورة #{{ invoice.id }}</title>
     <style>
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: 'Cairo', sans-serif;
             direction: rtl;
-            margin: 40px;
-            color: #000;
+            text-align: right;
+            margin: 0;
+            padding: 20px;
+            background-color: #fff;
         }
 
-        h1 {
+        .invoice-box {
+            max-width: 800px;
+            margin: auto;
+            border: 1px solid #eee;
+            padding: 30px;
+        }
+
+        h2 {
             text-align: center;
-            font-size: 28px;
             margin-bottom: 10px;
+        }
+
+        p {
+            margin: 3px 0;
         }
 
         .info {
             margin-bottom: 20px;
-            font-size: 16px;
-        }
-
-        .info p {
-            margin: 4px 0;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
-            font-size: 15px;
+            margin-top: 10px;
+        }
+
+        table,
+        th,
+        td {
+            border: 1px solid #ccc;
         }
 
         th,
         td {
-            border: 1px solid #444;
             padding: 10px;
             text-align: center;
         }
 
-        th {
-            background-color: #f2f2f2;
-        }
-
-        .totals {
+        .total-box {
             margin-top: 30px;
             font-size: 16px;
         }
 
-        .totals p {
+        .total-box p {
             margin: 6px 0;
-            font-weight: bold;
         }
 
-        .no-print {
+        .print-btn {
             margin-top: 30px;
             text-align: center;
         }
 
-        .no-print button {
-            background-color: #4CAF50;
+        .no-print {
+            background-color: #007bff;
             color: white;
             padding: 10px 20px;
+            font-size: 14px;
             border: none;
-            border-radius: 6px;
-            font-size: 16px;
             cursor: pointer;
+            border-radius: 4px;
         }
 
         @media print {
             .no-print {
                 display: none;
             }
-
-            body {
-                margin: 0;
-            }
-
-            table,
-            th,
-            td {
-                page-break-inside: avoid;
-            }
         }
     </style>
 </head>
 
 <body>
-    <h1>فاتورة بيع</h1>
 
-    <div class="info">
-        <p><strong>العميل:</strong> {{ invoice.customer.name }}</p>
-        <p><strong>التاريخ:</strong> {{ invoice.created_at|date:"Y-m-d H:i" }}</p>
-        <p><strong>طريقة الدفع:</strong> {{ invoice.payment_method }}</p>
+    <div class="invoice-box">
+        <h2>فاتورة بيع</h2>
+        <div class="info">
+            <p><strong>رقم الفاتورة:</strong> {{ invoice.id }}</p>
+            <p><strong>تاريخ:</strong> {{ invoice.date|date:"Y-m-d H:i" }}</p>
+            <p><strong>اسم المحل:</strong> {{ shop.name }}</p>
+            <p><strong>العميل:</strong> {{ invoice.customer.name }}</p>
+            <p><strong>الهاتف:</strong> {{ invoice.customer.phone }}</p>
+            <p><strong>العنوان:</strong> {{ invoice.customer.address }}</p>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>الصنف</th>
+                    <th>الكمية</th>
+                    <th>السعر</th>
+                    <th>الإجمالي</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr>
+                    <td>{{ item.get_name }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ item.price|floatformat:2 }}</td>
+                    <td>{{ item.line_total|floatformat:2 }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="total-box">
+            <p><strong>إجمالي قبل الخصم:</strong> {{ total_before_discount|floatformat:2 }}</p>
+            <p><strong>الخصم:</strong> {{ invoice.discount|floatformat:2 }}</p>
+            <p><strong>الصافي بعد الخصم:</strong> {{ invoice.total|floatformat:2 }}</p>
+            <p><strong>المدفوع:</strong> {{ invoice.amount_paid|floatformat:2 }}</p>
+            <p><strong>المتبقي:</strong> {{ remaining|floatformat:2 }}</p>
+        </div>
+
+        <div class="print-btn">
+            <button onclick="window.print()" class="no-print">🖨️ طباعة الفاتورة</button>
+        </div>
+
+        <p style="text-align: center; margin-top: 30px;">شكراً لتعاملكم معنا 🌟</p>
     </div>
 
-    <table>
-        <thead>
-            <tr>
-                <th>المنتج</th>
-                <th>الكمية</th>
-                <th>السعر</th>
-                <th>الإجمالي</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for item in items %}
-            <tr>
-                <td>{{ item.product.name }}</td>
-                <td>{{ item.quantity }}</td>
-                <td>{{ item.price }}</td>
-                <td>{{ item.price|multiply:item.quantity }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-
-    <div class="totals">
-        <p>الخصم: {{ invoice.discount }}</p>
-        <p>الإجمالي الكلي: {{ invoice.total }}</p>
-    </div>
-
-    <div class="flex justify-center gap-4 mt-6">
-
-        <button onclick="window.print()"
-            class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg shadow transition">
-            🖨️ طباعة الفاتورة
-        </button>
-    </div>
-    
-
-    </div>
 </body>
 
 </html>
+
+
+
+
+

@@ -1,18 +1,8 @@
-import pdfkit
-from django.http import HttpResponse
-from django.template.loader import render_to_string
+
 from django.shortcuts import redirect
 from django.contrib import messages
 from accounts.models import UserSubscription
 
-def render_to_pdf(template_src, context_dict):
-    html = render_to_string(template_src, context_dict)
-    path_wkhtmltopdf = r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe'
-    config = pdfkit.configuration(wkhtmltopdf=path_wkhtmltopdf)
-    pdf = pdfkit.from_string(html, False, configuration=config)
-    response = HttpResponse(pdf, content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="invoice.pdf"'
-    return response
 
 def is_manager(user):
     return user.is_authenticated and user.role == 'manager'

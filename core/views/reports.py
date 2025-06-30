@@ -7,7 +7,7 @@ from decimal import Decimal
 
 from ..models import Invoice
 from ..forms import SalesReportForm
-from ..utils import is_manager, is_manager_or_employee, render_to_pdf,block_superuser
+from ..utils import is_manager, is_manager_or_employee,block_superuser
 
 @block_superuser
 @user_passes_test(is_manager)
@@ -75,19 +75,3 @@ def sales_report_print(request):
         'now': now(),
     })
 
-@block_superuser
-@user_passes_test(is_manager_or_employee)
-def invoice_pdf(request, invoice_id):
-    user_shop = request.user.shop
-    invoice = get_object_or_404(
-        Invoice.objects.select_related('customer'),
-        id=invoice_id,
-        shop=user_shop  # 🔒 حماية الوصول
-    )
-    items = invoice.items.select_related('product', 'lens')  # ✅ دعم العدسات لو احتجتها في الطباعة
-
-    context = {
-        'invoice': invoice,
-        'items': items
-    }
-    return render_to_pdf('invoice_pdf_template.html', context)

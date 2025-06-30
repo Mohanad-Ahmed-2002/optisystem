@@ -28,7 +28,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG", "False") == "True"
 
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(",")
+ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "").split()
 
 AUTH_USER_MODEL = 'accounts.CustomUser'
 LOGIN_URL = 'login'
@@ -91,9 +91,20 @@ WSGI_APPLICATION = 'optica.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    'default': dj_database_url.config(default=os.getenv("DATABASE_URL"), conn_max_age=600)
-}
+import sys
+
+if 'test' in sys.argv or 'pytest' in sys.argv[0]:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': ':memory:',  # قاعدة مؤقتة في RAM
+        }
+    }
+else:
+    DATABASES = {
+        'default': dj_database_url.config(default=os.getenv("DATABASE_URL"), conn_max_age=600)
+    }
+
 
 
 

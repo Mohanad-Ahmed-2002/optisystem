@@ -14,17 +14,15 @@
             <h3 class="text-lg font-semibold text-blue-800 mb-2">👤 بيانات العميل</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <label class="block font-medium mb-1">اختر العميل</label>
-                    <select name="customer" id="customerSelect"
-                        class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-400"
-                        onchange="toggleNewCustomer(this)">
-                        <option value="">-- اختر --</option>
-                        {% for c in customers %}
-                        <option value="{{ c.id }}">{{ c.name }}</option>
-                        {% endfor %}
-                        <option value="new">➕ عميل جديد</option>
-                    </select>
+                    <label class="block font-medium mb-1">ابحث عن العميل</label>
+                    <input type="text" id="customerSearch" class="w-full border border-gray-300 p-3 rounded-lg"
+                        placeholder="اكتب اسم العميل">
+                    <input type="hidden" name="customer" id="customerId">
+                    <div id="customerResults" class="bg-white border rounded shadow absolute z-10 hidden"></div>
+                    <button type="button" class="mt-2 bg-blue-600 text-white px-3 py-2 rounded" onclick="showNewCustomerForm()">➕ عميل
+                        جديد</button>
                 </div>
+                
                 <div>
                     <label class="block font-medium mb-1">نوع الفاتورة</label>
                     <select name="sale_type"
@@ -129,6 +127,14 @@
             </div>
         </div>
 
+        <!-- إجمالي الفاتورة والتفاصيل -->
+        <div id="invoice-summary" class="bg-blue-50 rounded-xl p-6 my-6 text-xl text-blue-900 font-bold">
+            <div>الإجمالي: <span id="total-amount">0</span> ج.م</div>
+            <div>الخصم: <span id="discount-amount">0</span> ج.م</div>
+            <div>المدفوع: <span id="paid-amount">0</span> ج.م</div>
+            <div>المتبقي: <span id="remaining-amount">0</span> ج.م</div>
+        </div>
+
         <!-- حفظ -->
         <div class="text-center pt-6">
             <button type="submit"
@@ -140,21 +146,47 @@
 </form>
 
 <script>
-    function toggleNewCustomer(select) {
-        const form = document.getElementById('newCustomerForm');
-        if (select.value === 'new') {
-            form.classList.remove('hidden');
-            form.querySelectorAll('input, select, textarea').forEach(f => {
-                if (f.name !== 'notes') f.setAttribute('required', true);
-            });
-        } else {
-            form.classList.add('hidden');
-            form.querySelectorAll('input, select, textarea').forEach(f => {
-                f.removeAttribute('required');
-            });
-        }
+    // ---- حساب الفاتورة لايف ----
+    function recalculateInvoice() {
+        let total = 0;
+
+        // المنتجات
+        document.querySelectorAll('.product-item').forEach(function (item) {
+            const select = item.querySelector('select');
+            const quantity = parseFloat(item.querySelector('input[name="quantities"]').value) || 0;
+            if (select && select.selectedOptions.length > 0 && quantity > 0) {
+                const priceText = select.selectedOptions[0].textContent.match(/\(([\d\.,]+) ج\.م\)/);
+                if (priceText) {
+                    const price = parseFloat(priceText[1].replace(',', '.'));
+                    total += price * quantity;
+                }
+            }
+        });
+
+        // العدسات
+        document.querySelectorAll('.lens-item').forEach(function (item) {
+            const select = item.querySelector('select');
+            const quantity = parseFloat(item.querySelector('input[name="lens_quantities"]').value) || 0;
+            if (select && select.selectedOptions.length > 0 && quantity > 0) {
+                const priceText = select.selectedOptions[0].textContent.match(/\(([\d\.,]+) ج\.م\)/);
+                if (priceText) {
+                    const price = parseFloat(priceText[1].replace(',', '.'));
+                    total += price * quantity;
+                }
+            }
+        });
+
+        const discount = parseFloat(document.querySelector('input[name="discount"]').value) || 0;
+        const paid = parseFloat(document.querySelector('input[name="amount_paid"]').value) || 0;
+        const remaining = Math.max(0, total - discount - paid);
+
+        document.getElementById('total-amount').textContent = total.toFixed(2);
+        document.getElementById('discount-amount').textContent = discount.toFixed(2);
+        document.getElementById('paid-amount').textContent = paid.toFixed(2);
+        document.getElementById('remaining-amount').textContent = remaining.toFixed(2);
     }
 
+    // ---- إضافة/حذف المنتجات والعدسات ----
     function addProduct() {
         const area = document.getElementById('products-area');
         const item = area.querySelector('.product-item').cloneNode(true);
@@ -162,12 +194,14 @@
         item.querySelector('input').value = '';
         item.querySelector('button').classList.remove('hidden');
         area.appendChild(item);
+        recalculateInvoice();
     }
 
     function removeProduct(btn) {
         const item = btn.closest('.product-item');
         if (document.querySelectorAll('.product-item').length > 1) item.remove();
         else alert('يجب أن تحتوي الفاتورة على منتج واحد على الأقل.');
+        recalculateInvoice();
     }
 
     function addLens() {
@@ -177,14 +211,17 @@
         item.querySelector('input').value = '';
         item.querySelector('button').classList.remove('hidden');
         area.appendChild(item);
+        recalculateInvoice();
     }
 
     function removeLens(btn) {
         const item = btn.closest('.lens-item');
         if (document.querySelectorAll('.lens-item').length > 1) item.remove();
         else alert('يجب أن تحتوي الفاتورة على عدسة واحدة على الأقل.');
+        recalculateInvoice();
     }
 
+    // ---- دعم الباركود ----
     document.getElementById('barcodeInput').addEventListener('keypress', function (e) {
         if (e.key === 'Enter') {
             e.preventDefault();
@@ -200,6 +237,7 @@
                         item.querySelector('button').classList.remove('hidden');
                         area.appendChild(item);
                         this.value = '';
+                        recalculateInvoice();
                     } else {
                         alert(data.error || 'حدث خطأ أثناء جلب المنتج');
                     }
@@ -207,10 +245,72 @@
         }
     });
 
-    document.addEventListener('DOMContentLoaded', () => {
-        const select = document.getElementById('customerSelect');
-        toggleNewCustomer(select);
+    // ---- بحث العميل والعميل الجديد ----
+    const customerSearch = document.getElementById('customerSearch');
+    const customerResults = document.getElementById('customerResults');
+    const customerId = document.getElementById('customerId');
+
+    customerSearch.addEventListener('input', function () {
+        const q = this.value;
+        if (q.length < 2) {
+            customerResults.classList.add('hidden');
+            return;
+        }
+        fetch(`/ajax/search-customers/?q=${q}`)
+            .then(r => r.json())
+            .then(data => {
+                if (data.length) {
+                    customerResults.innerHTML = data.map(c => `<div class="px-2 py-1 cursor-pointer hover:bg-blue-100" onclick="selectCustomer(${c.id}, '${c.name}')">${c.name} <span class="text-xs text-gray-400">${c.phone || ""}</span></div>`).join('');
+                    customerResults.classList.remove('hidden');
+                } else {
+                    customerResults.innerHTML = '<div class="px-2 py-1 text-gray-500">لا يوجد نتائج</div>';
+                    customerResults.classList.remove('hidden');
+                }
+            });
     });
+
+    customerSearch.addEventListener('blur', function () {
+        setTimeout(() => customerResults.classList.add('hidden'), 200);
+    });
+
+    // إظهار فورم عميل جديد (ويضع required)
+    function showNewCustomerForm() {
+        customerId.value = '';
+        customerSearch.value = '';
+        document.getElementById('newCustomerForm').classList.remove('hidden');
+        // إضافة required لكل المدخلات
+        document.querySelectorAll('#newCustomerForm input, #newCustomerForm select, #newCustomerForm textarea').forEach(f => {
+            if (f.name !== 'notes') f.setAttribute('required', true);
+        });
+    }
+
+    // عند اختيار عميل من البحث (إخفاء فورم العميل الجديد وإزالة required)
+    window.selectCustomer = function (id, name) {
+        customerSearch.value = name;
+        customerId.value = id;
+        customerResults.classList.add('hidden');
+        document.getElementById('newCustomerForm').classList.add('hidden');
+        // إزالة required من جميع الحقول داخل فورم العميل الجديد
+        document.querySelectorAll('#newCustomerForm input, #newCustomerForm select, #newCustomerForm textarea').forEach(f => {
+            f.removeAttribute('required');
+        });
+    };
+
+    // ---- عند التحميل (تشغيل الحساب لأول مرة) ----
+    document.addEventListener('DOMContentLoaded', function () {
+        recalculateInvoice();
+    });
+
+    // ---- حساب الفاتورة كلما تغير أي مدخل مهم ----
+    document.addEventListener('input', function (e) {
+        if (
+            e.target.matches('.product-item select, .product-item input[name="quantities"], .lens-item select, .lens-item input[name="lens_quantities"], input[name="discount"], input[name="amount_paid"]')
+        ) {
+            recalculateInvoice();
+        }
+    });
+
 </script>
+
 
 {% endblock %}

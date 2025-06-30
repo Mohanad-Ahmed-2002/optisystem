@@ -14,7 +14,8 @@ urlpatterns = [
     path('invoices/<int:invoice_id>/delete/', views.delete_invoice, name='delete_invoice'),
     path('invoices/<int:invoice_id>/add-payment/', views.add_payment, name='add_payment'),
     path('payments/<int:payment_id>/delete/', views.delete_payment, name='delete_payment'),
-    
+    path('ajax/search-customers/', views.search_customers, name='search_customers'),
+
 
 
     # العملاء

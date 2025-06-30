@@ -357,3 +357,10 @@ def get_product_by_barcode(request):
         })
     except Product.DoesNotExist:
         return JsonResponse({'success': False, 'error': 'المنتج غير موجود'})
+
+def search_customers(request):
+    q = request.GET.get('q', '')
+    shop = request.user.shop
+    results = Customer.objects.filter(shop=shop, name__icontains=q)[:10]
+    data = [{'id': c.id, 'name': c.name, 'phone': c.phone} for c in results]
+    return JsonResponse(data, safe=False)

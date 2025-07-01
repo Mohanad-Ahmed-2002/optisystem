@@ -7,9 +7,10 @@ class SubscriptionMiddleware:
 
     def __call__(self, request):
         excluded_paths = [
-            '/admin/', '/login/', '/signup/', '/choose-plan/', '/signup-with-plan/',
-            '/waiting-approval/', '/activate-user/', '/deactivate-user/', '/platform-admin-dashboard/'
-        ]
+    '/admin/', '/login/', '/accounts/login/', '/signup/', '/choose-plan/', '/signup-with-plan/',
+    '/waiting-approval/', '/activate-user/', '/deactivate-user/', '/platform-admin-dashboard/'
+]
+
         if any(request.path.startswith(path) for path in excluded_paths):
             return self.get_response(request)
 

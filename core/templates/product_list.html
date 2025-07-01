@@ -6,7 +6,7 @@
     <h1 class="text-2xl font-extrabold text-center text-[#2d2a32] mb-6">📦 قائمة المنتجات</h1>
 
     <form method="get" class="mb-6 flex justify-center">
-        <input type="text" name="search" value="{{ search_query }}" placeholder="🔍 بحث باسم المنتج"
+        <input type="text" name="search" value="{{ search_query }}" placeholder="🔍  بحث باسم المنتج او باركود"
             class="border border-gray-300 rounded-xl px-4 py-2 w-1/2 text-sm">
         <button type="submit"
             class="ml-2 bg-[#007f5f] text-white px-4 py-2 rounded-xl hover:bg-[#009f75] text-sm font-bold">
@@ -28,7 +28,7 @@
             <thead class="bg-gray-100 text-gray-700">
                 <tr>
                     <th class="py-2 px-4">📛 الاسم</th>
-                    <th class="py-2 px-4">💵 سعر الشراء</th>
+                    <th class="px-4 py-2">الباركود</th>
                     <th class="py-2 px-4">💰 سعر البيع</th>
                     <th class="py-2 px-4">📦 الكمية</th>
                     <th class="py-2 px-4">✏️</th>
@@ -39,7 +39,7 @@
                 {% for product in products %}
                 <tr class="bg-white hover:bg-gray-50 transition shadow rounded-xl">
                     <td class="py-2 px-4">{{ product.name }}</td>
-                    <td class="py-2 px-4">{{ product.buy_price }}</td>
+                    <td class="px-4 py-2">{{ product.barcode }}</td>
                     <td class="py-2 px-4 font-semibold text-[#007f5f]">{{ product.sell_price }}</td>
                     <td class="py-2 px-4">{{ product.quantity }}</td>
                     <td class="py-2 px-4">

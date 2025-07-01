@@ -12,9 +12,11 @@ import time
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import JsonResponse
 
-from ..models import Invoice, InvoiceItem,Lens, Product, Customer, MonthlySession, InvoicePayment
+from ..models import Invoice, InvoiceItem, Product, Customer, MonthlySession, InvoicePayment
 from ..forms import CustomerForm
 from ..utils import  is_manager, is_employee, is_manager_or_employee,subscription_required,block_superuser
+
+
 
 
 @block_superuser
@@ -22,10 +24,10 @@ from ..utils import  is_manager, is_employee, is_manager_or_employee,subscriptio
 def invoice_list(request):
     search_query = request.GET.get('search', '')
 
-    # 🔒 فلترة حسب المحل الحالي
     invoices_list = Invoice.objects.select_related('customer')\
-        .filter(shop=request.user.shop)\
-        .order_by('-date')
+    .filter(shop=request.user.shop, sale_type='قطاعي')\
+    .order_by('-date')
+
 
     if search_query:
         invoices_list = invoices_list.filter(customer__name__icontains=search_query)
@@ -39,6 +41,26 @@ def invoice_list(request):
         'search_query': search_query
     })
 
+@block_superuser
+@user_passes_test(lambda u: u.is_authenticated and u.role == 'manager')
+def wholesale_invoice_list(request):
+    search_query = request.GET.get('search', '')
+
+    invoices_list = Invoice.objects.select_related('customer')\
+        .filter(shop=request.user.shop, sale_type='جملة')\
+        .order_by('-date')
+
+    if search_query:
+        invoices_list = invoices_list.filter(customer__name__icontains=search_query)
+
+    paginator = Paginator(invoices_list, 15)
+    page_number = request.GET.get('page')
+    invoices = paginator.get_page(page_number)
+
+    return render(request, 'wholesale_invoice_list.html', {
+        'invoices': invoices,
+        'search_query': search_query
+    })
 
 @block_superuser
 @subscription_required
@@ -46,7 +68,6 @@ def invoice_list(request):
 def add_invoice(request):
     customers = Customer.objects.filter(shop=request.user.shop)
     products = Product.objects.filter(shop=request.user.shop)
-    lenses = Lens.objects.filter(shop=request.user.shop)
 
     if request.method == 'POST':
         try:
@@ -169,36 +190,31 @@ def add_invoice(request):
                         invoice=invoice,
                         product=product,
                         quantity=quantity,
-                        price=price
+                        price=price,
+                        name=product.name  # لضمان الحفظ باسم المنتج
                     )
 
                     product.quantity -= quantity
                     product.save()
 
-                lens_ids = request.POST.getlist('lens_ids')
-                lens_quantities = request.POST.getlist('lens_quantities')
+                # البنود اليدوية (عدسات أو أي خدمة)
+                extra_names = request.POST.getlist('extra_names')
+                extra_prices = request.POST.getlist('extra_prices')
+                extra_quantities = request.POST.getlist('extra_quantities')
 
-                for lid, qty_str in zip(lens_ids, lens_quantities):
-                    if not lid or not qty_str:
-                        continue
-
-                    lens = get_object_or_404(Lens, id=lid, shop=request.user.shop)
-                    quantity = int(qty_str)
-
-                    if quantity <= 0:
-                        messages.warning(request, f'تم تجاهل العدسة \"{lens.name}\" لأن الكمية المدخلة هي {quantity}.')
-                        continue
-
-                    price = lens.buy_price if sale_type == 'جملة' else lens.sell_price
-                    line_total = quantity * price
-                    total_invoice_items_price += line_total
-
-                    InvoiceItem.objects.create(
-                        invoice=invoice,
-                        lens=lens,
-                        quantity=quantity,
-                        price=price
-                    )
+                for name, price, qty in zip(extra_names, extra_prices, extra_quantities):
+                    if name and price and qty:
+                        price = Decimal(price)
+                        qty = int(qty)
+                        line_total = price * qty
+                        total_invoice_items_price += line_total
+                        InvoiceItem.objects.create(
+                            invoice=invoice,
+                            name=name,
+                            price=price,
+                            quantity=qty,
+                            product=None  # مش مرتبط بمنتج من السيستم
+                        )
 
                 invoice.total = total_invoice_items_price - discount
                 invoice.save()
@@ -214,7 +230,6 @@ def add_invoice(request):
     return render(request, 'add_invoice.html', {
         'customers': customers,
         'products': products,
-        'lenses': lenses,
         'customer_form': CustomerForm()
     })
 
@@ -258,7 +273,7 @@ def add_payment(request, invoice_id):
     return render(request, 'add_payment.html', {'invoice': invoice})
 
 @block_superuser
-@user_passes_test(is_manager_or_employee)
+@user_passes_test(is_manager)
 def delete_payment(request, payment_id):
     payment = get_object_or_404(InvoicePayment, id=payment_id)
 

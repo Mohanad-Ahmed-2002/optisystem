@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import user_passes_test
 from django.db.models import Q
 
 from ..models import Product
-from ..forms import ProductForm
+from ..forms import ProductForm,ProductFormEmployee
 from ..utils import is_manager_or_employee, is_manager,block_superuser
 
 @block_superuser
@@ -15,8 +15,10 @@ def product_list(request):
     products = Product.objects.filter(shop=request.user.shop)
 
     if search_query:
-        products = products.filter(Q(name__icontains=search_query) |
-        Q(barcode__icontains=search_query))
+        if search_query.isdigit():
+            products = products.filter(barcode__icontains=search_query)
+        else:
+            products = products.filter(name__icontains=search_query)
 
 
     products = products.order_by('-id')
@@ -29,25 +31,35 @@ def product_list(request):
         'search_query': search_query
     })
 
-@block_superuser
-@user_passes_test(is_manager_or_employee)
-def add_product(request):
-    if request.method == 'POST':
-        form = ProductForm(request.POST)
-        if form.is_valid():
-            product = form.save(commit=False)
-            product.shop = request.user.shop  # ✅ ربط المنتج بالمحل
-            product.save()
-            messages.success(request, 'تم إضافة المنتج بنجاح.')
-            return redirect('product_list')
-        else:
-            messages.error(request, 'الرجاء تصحيح الأخطاء في النموذج.')
-    else:
-        form = ProductForm()
-    return render(request, 'add_product.html', {'form': form})
 
 @block_superuser
 @user_passes_test(is_manager_or_employee)
+def add_product(request):
+    # اختيار الفورم حسب الدور
+    if request.user.role == 'manager':
+        FormClass = ProductForm
+    else:
+        FormClass = ProductFormEmployee
+
+    if request.method == 'POST':
+        form = FormClass(request.POST)
+        if form.is_valid():
+            product = form.save(commit=False)
+            product.shop = request.user.shop
+
+            # الموظف لا يقدر يدخل سعر شراء
+            if request.user.role != 'manager':
+                product.buy_price = 0  # أو خليها أي قيمة افتراضية
+
+            product.save()
+            messages.success(request, 'تم إضافة المنتج بنجاح.')
+            return redirect('product_list')
+    else:
+        form = FormClass()
+    return render(request, 'add_product.html', {'form': form})
+
+@block_superuser
+@user_passes_test(is_manager)
 def edit_product(request, product_id):
     product = get_object_or_404(Product, id=product_id, shop=request.user.shop)  # ✅ حماية الوصول
 

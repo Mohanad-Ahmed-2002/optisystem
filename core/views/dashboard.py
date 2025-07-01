@@ -2,8 +2,8 @@ from django.shortcuts import render
 from django.db.models import Sum
 from django.utils.timezone import localdate
 from decimal import Decimal
-from ..models import Invoice, Expense,InvoicePayment
-from ..utils import is_manager_or_employee,subscription_required,block_superuser
+from ..models import Invoice, Expense, InvoicePayment
+from ..utils import is_manager_or_employee, subscription_required, block_superuser
 from django.contrib.auth.decorators import user_passes_test
 from ..models import MonthlySession
 
@@ -17,11 +17,11 @@ def dashboard(request):
     shop_name = request.user.shop.name
     today = localdate()
     month_start = today.replace(day=1)
-    user_shop = request.user.shop  # ✅ جلب المحل الخاص بالمستخدم
+    user_shop = request.user.shop
 
-    # تصفية البيانات حسب المحل
-    daily_sales = Invoice.objects.filter(date__date=today, shop=user_shop)
-    monthly_sales = Invoice.objects.filter(date__date__gte=month_start, shop=user_shop)
+    # ======= القطاعي فقط لكل الإحصائيات =======
+    daily_sales = Invoice.objects.filter(date__date=today, shop=user_shop, sale_type='قطاعي')
+    monthly_sales = Invoice.objects.filter(date__date__gte=month_start, shop=user_shop, sale_type='قطاعي')
     monthly_expenses_qs = Expense.objects.filter(date__gte=month_start, shop=user_shop)
 
     daily_total = daily_sales.aggregate(total=Sum('total'))['total'] or Decimal('0.00')
@@ -31,7 +31,16 @@ def dashboard(request):
     ).aggregate(paid=Sum('amount'))['paid'] or Decimal('0.00')
     monthly_expenses = monthly_expenses_qs.aggregate(amount=Sum('amount'))['amount'] or Decimal('0.00')
 
-    # جلب الشهر المالي الحالي الخاص بالمحل
+    # ======= مبيعات الجملة الشهرية (للادمن فقط) =======
+    monthly_wholesale_sales = None
+    if request.user.role == 'manager':
+        monthly_wholesale_sales = Invoice.objects.filter(
+            date__date__gte=month_start,
+            shop=user_shop,
+            sale_type='جملة'
+        ).aggregate(total=Sum('total'))['total'] or Decimal('0.00')
+
+    # ======= جلسة الشهر المالي =======
     session = MonthlySession.objects.filter(status='open', shop=user_shop).order_by('-month').first()
     previous_profit = session.previous_profit if session else Decimal('0.00')
 
@@ -44,11 +53,12 @@ def dashboard(request):
         'daily_count': daily_sales.count(),
         'monthly_total': monthly_total,
         'monthly_count': monthly_sales.count(),
-        'latest_invoices': monthly_sales.select_related('customer').order_by('-date')[:5],  # ✅ أحدث فواتير المحل فقط
+        'latest_invoices': monthly_sales.select_related('customer').order_by('-date')[:5],  # فقط القطاعي
         'monthly_expenses': monthly_expenses,
         'monthly_paid': monthly_paid,
         'monthly_profit': monthly_profit,
         'previous_profit': previous_profit,
         'cash_flow_total': cash_flow_total,
+        'monthly_wholesale_sales': monthly_wholesale_sales,
     }
     return render(request, 'dashboard.html', context)

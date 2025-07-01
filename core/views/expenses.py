@@ -48,7 +48,7 @@ def add_expense(request):
     return render(request, 'add_expense.html', {'form': form})
 
 @block_superuser
-@user_passes_test(is_manager_or_employee)
+@user_passes_test(is_manager)
 def delete_expense(request, expense_id):
     expense = get_object_or_404(Expense, id=expense_id, shop=request.user.shop)  # 🔒 حماية
     if request.method == 'POST':

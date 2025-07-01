@@ -1,12 +1,13 @@
 from django.urls import path
 from . import views
-from .views import lens,customers
+from .views import customers
 
 urlpatterns = [
     path('', views.dashboard, name='dashboard'), # تم نقلها للأعلى لتكون الـ home page الافتراضية
 
     # الفواتير
     path('invoices/', views.invoice_list, name='invoice_list'),
+    path('wholesale-invoices/', views.wholesale_invoice_list, name='wholesale_invoice_list'),
     path('add-invoice/', views.add_invoice, name='add_invoice'),
     path('invoices/<int:invoice_id>/update_payment/', views.update_invoice_payment, name='update_invoice_payment'),
     path('invoices/<int:invoice_id>/', views.invoice_detail, name='invoice_detail'),
@@ -28,10 +29,6 @@ urlpatterns = [
     path('products/', views.product_list, name='product_list'),
     path('products/edit/<int:product_id>/', views.edit_product, name='edit_product'),
     path('products/delete/<int:product_id>/', views.delete_product, name='delete_product'),
-    path('lenses/', lens.lens_list, name='lens_list'),
-    path('lenses/add/', lens.add_lens, name='add_lens'),
-    path('lenses/edit/<int:lens_id>/', lens.edit_lens, name='edit_lens'),
-    path('lenses/delete/<int:lens_id>/', lens.delete_lens, name='delete_lens'),
     path('get-product-by-barcode/', views.get_product_by_barcode, name='get_product_by_barcode'),
 
 

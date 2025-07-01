@@ -1,5 +1,5 @@
 from django import forms
-from .models import Customer, Product, Expense,Lens
+from .models import Customer, Product, Expense
 
 
 # 1. Sales Report Form (كان موجوداً)
@@ -43,11 +43,10 @@ class ExpenseForm(forms.ModelForm):
 class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
-        fields = ['name', 'category', 'brand', 'buy_price', 'sell_price', 'quantity', 'barcode']
+        fields = ['name', 'category','buy_price', 'sell_price', 'quantity', 'barcode']
         labels = {
             'name': 'اسم المنتج',
             'category': 'الفئة',
-            'brand': 'العلامة التجارية',
             'buy_price': 'سعر الشراء',
             'sell_price': 'سعر البيع',
             'quantity': 'الكمية',
@@ -60,10 +59,6 @@ class ProductForm(forms.ModelForm):
             }),
             'category': forms.Select(attrs={
                 'class': 'w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500',
-            }),
-            'brand': forms.TextInput(attrs={
-                'class': 'w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500',
-                'placeholder': 'أدخل العلامة التجارية (اختياري)'
             }),
             'buy_price': forms.NumberInput(attrs={
                 'class': 'w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500',
@@ -105,6 +100,44 @@ class ProductForm(forms.ModelForm):
 
         return cleaned_data
 
+# 3. ProductFormEmployee (تم إضافته)
+class ProductFormEmployee(forms.ModelForm):
+    class Meta:
+        model = Product
+        fields = ['name', 'category','sell_price', 'quantity', 'barcode']  # بدون buy_price
+        labels = {
+            'name': 'اسم المنتج',
+            'category': 'الفئة',
+            'brand': 'العلامة التجارية',
+            'sell_price': 'سعر البيع',
+            'quantity': 'الكمية',
+            'barcode': 'الباركود',
+        }
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'class': 'w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500',
+                'placeholder': 'أدخل اسم المنتج'
+            }),
+            'category': forms.Select(attrs={
+                'class': 'w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500',
+            }),
+            'sell_price': forms.NumberInput(attrs={
+                'class': 'w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500',
+                'step': '0.01',
+                'placeholder': 'سعر البيع'
+            }),
+            'quantity': forms.NumberInput(attrs={
+                'class': 'w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500',
+                'placeholder': 'الكمية المتاحة'
+            }),
+            'barcode': forms.TextInput(attrs={
+                'class': 'w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500',
+                'placeholder': 'أدخل الباركود (اختياري)'
+            }),
+        }
+    # يمكنك إضافة نفس الفاليديشن الخاص بالسعر والكمية هنا إذا أردت
+
+
 # 4. Customer Form (تم إضافته)
 class CustomerForm(forms.ModelForm):
     class Meta:
@@ -142,38 +175,4 @@ class CustomerForm(forms.ModelForm):
             raise forms.ValidationError("اسم العميل مطلوب.")
         return name
 
-# 5. Lens Form (تم إضافته)
-class LensForm(forms.ModelForm):
-    class Meta:
-        model = Lens
-        fields = ['name', 'company', 'buy_price', 'sell_price']
-        labels = {
-            'name': 'اسم العدسة',
-            'company': 'اسم الشركة (اختياري)',
-            'buy_price': 'سعر الشراء',
-            'sell_price': 'سعر البيع',
-        }
-        widgets = {
-            'name': forms.TextInput(attrs={
-                'class': 'w-full p-2 mt-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400',
-                'placeholder': 'اسم العدسة'
-            }),
-            'company': forms.TextInput(attrs={
-                'class': 'w-full p-2 mt-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400',
-                'placeholder': 'اسم الشركة (اختياري)'
-            }),
-            'buy_price': forms.NumberInput(attrs={
-                'class': 'w-full p-2 mt-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400',
-                'placeholder': 'سعر الشراء'
-            }),
-            'sell_price': forms.NumberInput(attrs={
-                'class': 'w-full p-2 mt-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400',
-                'placeholder': 'سعر البيع'
-            }),
-        }
 
-    def clean_name(self):
-        name = self.cleaned_data.get('name')
-        if not name:
-            raise forms.ValidationError("اسم العدسة مطلوب.")
-        return name

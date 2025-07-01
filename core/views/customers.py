@@ -12,6 +12,10 @@ def customer_list(request):
     search_query = request.GET.get('search', '')
     customers = Customer.objects.filter(shop=request.user.shop)
 
+    if request.user.role != 'manager':
+    # يظهر فقط العملاء اللي عندهم فواتير قطاعي
+        customers = customers.filter(invoice__sale_type='قطاعي').distinct()
+
     if search_query:
         customers = customers.filter(
             Q(name__icontains=search_query) |

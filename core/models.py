@@ -60,20 +60,6 @@ class Product(models.Model):
         verbose_name = "منتج"
         verbose_name_plural = "المنتجات"
 
-class Lens(models.Model):
-    name = models.CharField(max_length=100, verbose_name="اسم العدسة")
-    shop = models.ForeignKey('core.Shop', on_delete=models.CASCADE, null=True, blank=True)
-    company = models.CharField(max_length=100, blank=True, null=True, verbose_name="اسم الشركة (اختياري)")
-    buy_price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="سعر الشراء من الشركة")
-    sell_price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="سعر البيع للعميل")
-    lens_type = models.CharField(max_length=50, blank=True, null=True, verbose_name="نوع العدسة (اختياري)")
-    notes = models.TextField(blank=True, null=True, verbose_name="ملاحظات")
-
-    def __str__(self):
-        if self.company:
-            return f"{self.name} - {self.company}"
-        else:
-            return self.name
 
 class MonthlySession(models.Model):
 
@@ -150,15 +136,15 @@ class InvoicePayment(models.Model):
 class InvoiceItem(models.Model):
     invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE, related_name="items", verbose_name="الفاتورة")
     product = models.ForeignKey(Product, null=True, blank=True, on_delete=models.SET_NULL, verbose_name="المنتج")
-    lens = models.ForeignKey(Lens, null=True, blank=True, on_delete=models.SET_NULL,verbose_name="العدسـات")
+    name = models.CharField(max_length=200, blank=True, null=True, verbose_name="اسم البند/العدسات")
     quantity = models.PositiveIntegerField(verbose_name="الكمية")
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="السعر")
 
     def get_name(self):
         if self.product:
             return self.product.name
-        elif self.lens:
-            return self.lens.name
+        elif self.name:
+            return self.name
         return "غير معروف"
     
 

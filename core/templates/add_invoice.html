@@ -40,35 +40,6 @@
             </div>
         </div>
 
-        <!-- معلومات الفاتورة -->
-        <div class="bg-gray-50 p-6 rounded-xl border space-y-4">
-            <h3 class="text-lg font-semibold text-blue-800 mb-2">💳 الدفع والخصم</h3>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div>
-                    <label class="block font-medium mb-1">طريقة الدفع</label>
-                    <select name="payment_method"
-                        class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-400">
-                        <option value="نقدًا">نقدًا</option>
-                        <option value="فيزا">فيزا</option>
-                        <option value="آجل">آجل</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block font-medium mb-1">الخصم</label>
-                    <input type="number" step="0.01" name="discount"
-                        class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-400">
-                </div>
-                <div>
-                    <label class="block font-medium mb-1">المدفوع</label>
-                    <input type="number" step="0.01" name="amount_paid"
-                        class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-400">
-                </div>
-            </div>
-        </div>
-
-
-
-
         <!-- الباركود -->
         <div>
             <label for="barcodeInput" class="block font-semibold text-gray-700 mb-2">📡 الباركود</label>
@@ -107,33 +78,56 @@
             </div>
         </div>
 
-        <!-- العدسات -->
-        <div class="bg-gray-50 p-6 rounded-xl border space-y-4">
-            <h3 class="text-lg font-semibold text-blue-800 mb-2">🕶️ العدسات</h3>
-            <div id="lenses-area" class="space-y-4">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end lens-item">
-                    <select name="lens_ids" class="border border-gray-300 p-3 rounded-lg w-full focus:ring-2 focus:ring-blue-400">
-                        {% for lens in lenses %}
-                        <option value="{{ lens.id }}" data-sell-price="{{ lens.sell_price }}" data-wholesale-price="{{ lens.buy_price }}">
-                            {{ lens.name }} ({{ lens.sell_price }} ج.م)
-                        </option>
-                        {% endfor %}
-                    </select>
 
-                    <input type="number" name="lens_quantities"
-                        class="border border-gray-300 p-3 rounded-lg w-full focus:ring-2 focus:ring-blue-400"
-                        placeholder="الكمية">
-                    <button type="button" onclick="removeLens(this)"
+        <!-- البنود الإضافية (عدسات أو أي خدمة) -->
+        <div class="bg-gray-50 p-6 rounded-xl border space-y-4">
+            <h3 class="text-lg font-semibold text-blue-800 mb-2">📝 بنود إضافية (مثل العدسات)</h3>
+            <div id="extras-area" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end extra-item">
+                    <input type="text" name="extra_names" placeholder="اسم البند (مثلاً اسم العدسة)"
+                        class="border border-gray-300 p-3 rounded-lg w-full focus:ring-2 focus:ring-blue-400">
+                    <input type="number" step="0.01" name="extra_prices" placeholder="السعر"
+                        class="border border-gray-300 p-3 rounded-lg w-full focus:ring-2 focus:ring-blue-400">
+                    <input type="number" name="extra_quantities" placeholder="الكمية"
+                        class="border border-gray-300 p-3 rounded-lg w-full focus:ring-2 focus:ring-blue-400" value="1">
+                    <button type="button" onclick="removeExtra(this)"
                         class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm">🗑️ حذف</button>
                 </div>
             </div>
             <div class="text-center">
-                <button type="button" onclick="addLens()"
-                    class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg text-sm font-semibold">➕ إضافة
-                    عدسة
-                    أخرى</button>
+                <button type="button" onclick="addExtra()"
+                    class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg text-sm font-semibold">➕ إضافة بند
+                    آخر</button>
             </div>
         </div>
+
+        <!-- معلومات الفاتورة -->
+        <div class="bg-gray-50 p-6 rounded-xl border space-y-4">
+            <h3 class="text-lg font-semibold text-blue-800 mb-2">💳 الدفع والخصم</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                    <label class="block font-medium mb-1">طريقة الدفع</label>
+                    <select name="payment_method"
+                        class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-400">
+                        <option value="نقدًا">نقدًا</option>
+                        <option value="فيزا">فيزا</option>
+                        <option value="آجل">آجل</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-medium mb-1">الخصم</label>
+                    <input type="number" step="0.01" name="discount"
+                        class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-400">
+                </div>
+                <div>
+                    <label class="block font-medium mb-1">المدفوع</label>
+                    <input type="number" step="0.01" name="amount_paid"
+                        class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-400">
+                </div>
+            </div>
+        </div>
+
+
 
         <!-- إجمالي الفاتورة والتفاصيل -->
         <div id="invoice-summary" class="bg-blue-50 rounded-xl p-6 my-6 text-xl text-blue-900 font-bold">
@@ -170,7 +164,6 @@
             const select = item.querySelector('select');
             const quantity = parseFloat(item.querySelector('input[name="quantities"]').value) || 0;
             if (select && select.selectedOptions.length > 0 && quantity > 0) {
-                // نقرأ السعر المناسب من الـ data attribute (بيع أو جملة)
                 const price = saleType === 'جملة'
                     ? parseFloat(select.selectedOptions[0].getAttribute('data-wholesale-price'))
                     : parseFloat(select.selectedOptions[0].getAttribute('data-sell-price'));
@@ -180,17 +173,12 @@
             }
         });
 
-        // العدسات (لو ليها سعرين نفس الفكرة - عدل اسماء الحقول لو محتاج)
-        document.querySelectorAll('.lens-item').forEach(function (item) {
-            const select = item.querySelector('select');
-            const quantity = parseFloat(item.querySelector('input[name="lens_quantities"]').value) || 0;
-            if (select && select.selectedOptions.length > 0 && quantity > 0) {
-                const price = saleType === 'جملة'
-                    ? parseFloat(select.selectedOptions[0].getAttribute('data-wholesale-price'))
-                    : parseFloat(select.selectedOptions[0].getAttribute('data-sell-price'));
-                if (!isNaN(price)) {
-                    total += price * quantity;
-                }
+        // البنود اليدوية (عدسات أو أي بند يدوي)
+        document.querySelectorAll('.extra-item').forEach(function (item) {
+            const price = parseFloat(item.querySelector('input[name="extra_prices"]').value) || 0;
+            const quantity = parseInt(item.querySelector('input[name="extra_quantities"]').value) || 0;
+            if (price > 0 && quantity > 0) {
+                total += price * quantity;
             }
         });
 
@@ -204,7 +192,7 @@
         document.getElementById('remaining-amount').textContent = remaining.toFixed(2);
     }
 
-    // ---- إضافة/حذف المنتجات والعدسات ----
+    // ---- إضافة/حذف المنتجات ----
     function addProduct() {
         const area = document.getElementById('products-area');
         const item = area.querySelector('.product-item').cloneNode(true);
@@ -222,20 +210,25 @@
         recalculateInvoice();
     }
 
-    function addLens() {
-        const area = document.getElementById('lenses-area');
-        const item = area.querySelector('.lens-item').cloneNode(true);
-        item.querySelector('select').value = '';
-        item.querySelector('input').value = '';
-        item.querySelector('button').classList.remove('hidden');
+    // ---- البنود اليدوية (عدسات/خدمات أو أي بند) ----
+    function addExtra() {
+        const area = document.getElementById('extras-area');
+        const item = area.querySelector('.extra-item').cloneNode(true);
+        item.querySelectorAll('input').forEach(input => {
+            if (input.name === 'extra_quantities') {
+                input.value = '1';
+            } else {
+                input.value = '';
+            }
+        });
         area.appendChild(item);
         recalculateInvoice();
     }
 
-    function removeLens(btn) {
-        const item = btn.closest('.lens-item');
-        if (document.querySelectorAll('.lens-item').length > 1) item.remove();
-        else alert('يجب أن تحتوي الفاتورة على عدسة واحدة على الأقل.');
+    function removeExtra(btn) {
+        const item = btn.closest('.extra-item');
+        if (document.querySelectorAll('.extra-item').length > 1) item.remove();
+        else alert('يجب أن تحتوي الفاتورة على بند واحد على الأقل.');
         recalculateInvoice();
     }
 
@@ -322,39 +315,33 @@
     // ---- حساب الفاتورة كلما تغير أي مدخل مهم ----
     document.addEventListener('input', function (e) {
         if (
-            e.target.matches('.product-item select, .product-item input[name="quantities"], .lens-item select, .lens-item input[name="lens_quantities"], input[name="discount"], input[name="amount_paid"]')
+            e.target.matches(
+                '.product-item select, .product-item input[name="quantities"], ' +
+                '.extra-item input[name="extra_names"], .extra-item input[name="extra_prices"], .extra-item input[name="extra_quantities"], ' +
+                'input[name="discount"], input[name="amount_paid"]'
+            )
         ) {
             recalculateInvoice();
         }
     });
 
-    // ---- إصلاح مشكلة required في الفورم المخفي ----
     document.querySelector('form').addEventListener('submit', function (e) {
-        const newCustomerForm = document.getElementById('newCustomerForm');
-        if (newCustomerForm.classList.contains('hidden')) {
-            // لو الفورم مخفي، اشيل required من كل مدخلاته
-            newCustomerForm.querySelectorAll('input, select, textarea').forEach(f => {
-                f.removeAttribute('required');
+        // لو فورم العميل الجديد مش ظاهر (hidden أو display:none)
+        var newCustomerForm = document.getElementById('newCustomerForm');
+        if (newCustomerForm &&
+            (newCustomerForm.classList.contains('hidden') ||
+                window.getComputedStyle(newCustomerForm).display === "none" ||
+                newCustomerForm.hasAttribute('hidden'))
+        ) {
+            // شيل required من كل حاجة جواه
+            newCustomerForm.querySelectorAll('[required]').forEach(function (input) {
+                input.removeAttribute('required');
             });
         }
     });
 
+
 </script>
 
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        // إصلاح مشكلة required في حقول العميل الجديد المخفية
-        document.querySelector('form').addEventListener('submit', function (e) {
-            var newCustomerForm = document.getElementById('newCustomerForm');
-            if (newCustomerForm && newCustomerForm.classList.contains('hidden')) {
-                // شيل required من كل input/select/textarea جوه newCustomerForm
-                newCustomerForm.querySelectorAll('[required]').forEach(function (f) {
-                    f.removeAttribute('required');
-                });
-            }
-        });
-    });
-</script>
-    
 
 {% endblock %}

@@ -10,12 +10,18 @@ from ..forms import SalesReportForm
 from ..utils import is_manager, is_manager_or_employee,block_superuser
 
 @block_superuser
-@user_passes_test(is_manager)
+@user_passes_test(is_manager_or_employee)
 def sales_report(request):
     user_shop = request.user.shop
     form = SalesReportForm(request.GET or None)
     
-    invoices = Invoice.objects.select_related('customer').filter(shop=user_shop).order_by('-created_at')
+    invoices = Invoice.objects.select_related('customer').filter(shop=user_shop)
+
+    # 👈 الموظف يشوف فقط مبيعات القطاعي
+    if request.user.role != 'manager':
+        invoices = invoices.filter(sale_type='قطاعي')
+
+    invoices = invoices.order_by('-created_at')
 
     if form.is_valid():
         customer = form.cleaned_data.get('customer')
@@ -43,14 +49,19 @@ def sales_report(request):
         'invoices': invoices,
         'total': total,
     })
-
 @block_superuser
 @user_passes_test(is_manager_or_employee)
 def sales_report_print(request):
     user_shop = request.user.shop
     form = SalesReportForm(request.GET or None)
     
-    invoices = Invoice.objects.select_related('customer').filter(shop=user_shop).order_by('-created_at')
+    invoices = Invoice.objects.select_related('customer').filter(shop=user_shop)
+
+    # 👈 الموظف يشوف فقط مبيعات القطاعي
+    if request.user.role != 'manager':
+        invoices = invoices.filter(sale_type='قطاعي')
+
+    invoices = invoices.order_by('-created_at')
 
     if form.is_valid():
         customer = form.cleaned_data.get('customer')
@@ -68,10 +79,15 @@ def sales_report_print(request):
             invoices = invoices.filter(created_at__date__lte=date_to)
 
     total = invoices.aggregate(Sum('total'))['total__sum'] or Decimal('0.00')
+    # احسب المدفوع والمتبقي الكلي
+    total_paid = sum(invoice.amount_paid for invoice in invoices)
+    total_remaining = sum(invoice.remaining_amount for invoice in invoices)
+
 
     return render(request, 'sales_report_print.html', {
         'invoices': invoices,
         'total': total,
+        'total_paid': total_paid,
+        'total_remaining': total_remaining,
         'now': now(),
     })
-

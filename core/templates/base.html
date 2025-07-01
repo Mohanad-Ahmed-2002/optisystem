@@ -7,8 +7,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <!-- Select2 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         body {
@@ -43,16 +41,18 @@
             <nav class="space-y-2 text-sm">
                 <a href="{% url 'dashboard' %}" class="block py-2 px-4 rounded-lg hover:bg-gray-100 hover:text-black">🏠
                     لوحة التحكم</a>
-                <a href="{% url 'invoice_list' %}"
-                    class="block py-2 px-4 rounded-lg hover:bg-gray-100 hover:text-black">🧾 المبيعـات</a>
+                    <li><a href="{% url 'invoice_list' %}" class="block py-2 px-4 rounded-lg hover:bg-gray-100 hover:text-black">🧾المبيعات</a></li>
+                    {% if request.user.role == 'manager' %}
+                    <li><a href="{% url 'wholesale_invoice_list' %}" class="block py-2 px-4 rounded-lg hover:bg-gray-100 hover:text-black">🧾مبيعات الجملة</a></li>
+                    {% endif %}
+                    
                 <a href="{% url 'expenses_list' %}"
                     class="block py-2 px-4 rounded-lg hover:bg-gray-100 hover:text-black">💸 المصروفات</a>
                 <a href="{% url 'sales_report' %}"
                     class="block py-2 px-4 rounded-lg hover:bg-gray-100 hover:text-black">📊 التقارير</a>
                 <a href="{% url 'product_list' %}"
                     class="block py-2 px-4 rounded-lg hover:bg-gray-100 hover:text-black">📦 المنتجات</a>
-                <a href="{% url 'lens_list' %}" class="block py-2 px-4 rounded-lg hover:bg-gray-100 hover:text-black">🟢
-                    العدسات</a>
+
                 {% if request.user.is_authenticated and request.user.role == 'manager' %}
                 <a href="{% url 'manage_users' %}"
                     class="block py-2 px-4 rounded-lg hover:bg-gray-100 hover:text-black">👥 المستخدمين</a>
@@ -77,8 +77,11 @@
             <nav class="space-y-2 text-sm">
                 <a href="{% url 'dashboard' %}" class="block py-2 px-4 rounded-lg hover:bg-gray-100 hover:text-black">🏠
                     لوحة التحكم</a>
-                <a href="{% url 'invoice_list' %}"
-                    class="block py-2 px-4 rounded-lg hover:bg-gray-100 hover:text-black">🧾 المبيعــات</a>
+                    <a href="{% url 'invoice_list' %}" class="block py-2 px-4 rounded-lg hover:bg-gray-100 hover:text-black">🧾المبيعات</a>
+                    {% if request.user.role == 'manager' %}
+                        <a href="{% url 'wholesale_invoice_list' %}" class="block py-2 px-4 rounded-lg hover:bg-gray-100 hover:text-black">🧾مبيعات الجملة</a>
+                    {% endif %}
+                    
                 <a href="{% url 'expenses_list' %}"
                     class="block py-2 px-4 rounded-lg hover:bg-gray-100 hover:text-black">💸 المصروفات</a>
                 
@@ -89,8 +92,7 @@
                     class="block py-2 px-4 rounded-lg hover:bg-gray-100 hover:text-black">📊 التقارير</a>
                 <a href="{% url 'product_list' %}"
                     class="block py-2 px-4 rounded-lg hover:bg-gray-100 hover:text-black">📦 المنتجات</a>
-                <a href="{% url 'lens_list' %}" class="block py-2 px-4 rounded-lg hover:bg-gray-100 hover:text-black">🟢
-                    العدسات</a>
+
                 {% if request.user.is_authenticated and request.user.role == 'manager' %}
                 <a href="{% url 'manage_users' %}"
                     class="block py-2 px-4 rounded-lg hover:bg-gray-100 hover:text-black">👥 المستخدمين</a>
@@ -149,9 +151,6 @@
         }, 4000);
     </script>
 
-    <!-- jQuery + Select2 JS -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 
 </body>
